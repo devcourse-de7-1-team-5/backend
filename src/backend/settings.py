@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'todo'
+    'todo',
+    'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -116,3 +117,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRONJOBS = [
+    # (자동 실행 시간은 중요하지 않습니다. 등록하기 위해 필요합니다.)
+    ('30 03 * * *', 'django.core.management.call_command', ['crawl_dramas'])
+]
