@@ -14,7 +14,7 @@ wheels/
 .idea/
 *.sublime-project
 *.sublime-workspace
-src/.DS_Store
+.DS_Store
 
 
 # Django files
