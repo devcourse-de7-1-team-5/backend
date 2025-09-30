@@ -1,8 +1,8 @@
-from typing import TypedDict, List
-from xmlrpc.client import DateTime
+from typing import TypedDict, List, Optional
 
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from django.test import TestCase
 from requests import Response
 
@@ -18,37 +18,8 @@ class ResponseDataType(TypedDict):
     url: str  # URL for next page
 
 
-def _get_response(drama_name: str, start_date: DateTime,
-    end_date: str) -> Response:
-    url = "https://search.naver.com/search.naver"
-
-    params = {
-        "ssc": "tab.news.all",
-        "query": drama_name,
-        "sm": "tab_opt",
-        "sort": "0",
-        "photo": "0",
-        "field": "0",
-        "pd": "3",
-        "ds": start_date,
-        "de": end_date,
-        "docid": "",
-        "related": "0",
-        "mynews": "0",
-        "office_type": "0",
-        "office_section_code": "0",
-        "news_office_checked": "",
-        "nso": "so:r,p:from20230930to20250930",
-        "is_sug_officeid": "0",
-        "office_category": "0",
-        "service_area": "0",
-    }
-
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-
-    return response
-
+def get_value_or_none(tag) -> Optional[Tag]:
+    return tag.get_text(strip=True) if tag else None
 
 class TestNewsCrawling(TestCase):
     mock_dramas = ["폭군의 셰프", "대운을잡아라", "태양의후예"]
@@ -84,8 +55,11 @@ class TestNewsCrawling(TestCase):
             "nso": "so:r,p:from20230603to20230930,a:all",
         }
 
-        response: Response = requests.get(url, params=params,
-                                          headers=self.headers)
+        response: Response = requests.get(
+            url,
+            params=params,
+            headers=self.headers
+        )
         self.assertEqual(response.status_code, 200)
         data: ResponseDataType = response.json()
 
@@ -99,27 +73,27 @@ class TestNewsCrawling(TestCase):
             title_tag = news_item.select_one(
                 "a[data-heatmap-target='.tit'] span.sds-comps-text"
             )
-            title = title_tag.get_text(strip=True) if title_tag else None
+            title = get_value_or_none(title_tag)
 
             body_tag = news_item.select_one(
                 "a[data-heatmap-target='.body'] span.sds-comps-text"
             )
-            body = body_tag.get_text(strip=True) if body_tag else None
+            body = get_value_or_none(body_tag)
 
             mark_tags = news_item.select(
                 "a[data-heatmap-target='.body'] span.sds-comps-text mark")
-            marks = [m.get_text(strip=True) for m in mark_tags]
+            marks = [get_value_or_none(m) for m in mark_tags]
 
             link_tag = news_item.select_one("a[data-heatmap-target='.tit']")
-            link = link_tag.get("href") if link_tag else None
+            link = get_value_or_none(link_tag)
 
             date_tag = news_item.select_one(
                 "span.sds-comps-profile-info-subtext span.sds-comps-text")
-            date = date_tag.get_text(strip=True) if date_tag else None
+            date = get_value_or_none(date_tag)
 
             press_tag = news_item.select_one(
                 "div.sds-comps-profile-info-title span.sds-comps-text a span.sds-comps-text")
-            press = press_tag.get_text(strip=True) if press_tag else None
+            press = get_value_or_none(press_tag)
 
             result.append({
                 "제목": title,
@@ -132,6 +106,20 @@ class TestNewsCrawling(TestCase):
 
         self.assertEqual(len(result), len(news_items))
         self.assertEqual(result[0]['제목'],
-                         "송중기·송혜교 데이트 장소 간 엄지원 “나도 기도할래”")
+                         "송중기·송혜교 데이트 장소 간 엄지원 “나도 기도할래”"
+                         )
         self.assertEqual(result[1]['제목'],
-                         "K팝·K드라마 이어 K디저트·K도자기까지…스펙트럼 확장에 외신 '주목'")
+                         "K팝·K드라마 이어 K디저트·K도자기까지…스펙트럼 확장에 외신 '주목'"
+                         )
+
+    def test_naver_news_crawler(self):
+        from todo.tests.naver_news_crawler import NaverNewsCrawler
+
+        crawler = NaverNewsCrawler(
+            query="태양의 후예",
+            ds="2023.06.03",
+            de="2023.09.30"
+        )
+
+        while crawler.has_next():
+            print(crawler.next()[-1].to_dict())
