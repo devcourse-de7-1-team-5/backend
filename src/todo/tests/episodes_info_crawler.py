@@ -92,12 +92,10 @@ def extract_drama_meta_from_result_page(driver, timeout=10):
 # print(meta)
 
 def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, timeout: int = 10):
+
     """
     네이버에서 `<드라마 제목> <n화>`를 검색해,
     '방송 에피소드' 모듈에서 시청률과 줄거리를 추출합니다.
-    실패 시 '회' 표기(예: 1회)로도 재시도합니다.
-
-    반환: {"시청률": "8.7%", "줄거리": "....", "url": "...", "query": "..."}
     """
     wait = WebDriverWait(driver, timeout)
 
@@ -106,8 +104,7 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
         url = f"https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query={quote_plus(query)}"
         driver.get(url)
 
-        # '방송 에피소드' 모듈 컨테이너
-        # (sc_new cs_common_module ... _kgs_broadcast_episode ...)
+        # '방송 에피소드' 모듈 컨테이너 (sc_new cs_common_module ... _kgs_broadcast_episode ...)
         module = wait.until(
             EC.presence_of_element_located((
                 By.XPATH,
@@ -121,9 +118,7 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
             By.XPATH,
             ".//dl[contains(@class,'info')]//div[contains(@class,'info_group')][.//dd[em[contains(@class,'value')]]]//dd/em[contains(@class,'value')]"
         )
-        # print(rating_el.text)
         rating = rating_el.text.strip()[:-1]
-        # print(f"rating:{rating}")
 
         # # --- 줄거리 ---
         # # 줄거리 텍스트 영역 (span.desc._text). '펼쳐보기' 버튼이 있으면 먼저 클릭
@@ -137,41 +132,31 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
 
         syn_el = module.find_element(
             By.XPATH,
-            # ".//div[contains(@class,'text_expand') and contains(@class,'_text')]"
             ".//div[contains(@class,'text_expand')]//span[contains(@class,'_text')]"
         )
         synopsis = syn_el.text.strip()
-    
+
+        # --- 방영일 ---
+        date_group = module.find_element(
+            By.XPATH,
+            ".//dl[contains(@class,'info')]//div[contains(@class,'info_group')][.//dt[contains(.,'방송일')]]"
+        )
+        dd_elem = date_group.find_element(By.TAG_NAME, "dd")
+        raw_text = dd_elem.text.strip()
+        date = raw_text.split()[0].rstrip(".")
         
         return {
+            "회차": episode_no,
+            "방영일자": date,
             "시청률": rating,
             "줄거리": synopsis,
-            "url": url,
-            "query": query
         }
 
-    # # 1차: '화' / 2차: '회'로 시도
-    # for suf in ["화", "회"]:
-    #     try:
-    #         return _try_with_suffix(suf)
-    #     except Exception:
-    #         continue
-    
     try:
         return _try_with_suffix("회")
     except Exception as e:
         print(e)
-        return {"시청률": None, "줄거리": None, "url": None, "query": None}
-
-    # 두 표기 모두 실패한 경우
-    # return {"시청률": None, "줄거리": None, "url": None, "query": None}
-
-# res = get_episode_rating_and_synopsis(driver, "눈물의 여왕", 1)
-# print(res)
-
-# for i in range(1,17):
-#     res = get_episode_rating_and_synopsis(driver, "눈물의 여왕", i)
-#     print(res)
+        return {"회차": None, "방영일자": None, "시청률": None, "줄거리": None}
 
 def get_all_episode_info(drama_title: str):
 
@@ -205,4 +190,4 @@ def get_all_episode_info(drama_title: str):
         res = get_episode_rating_and_synopsis(driver, drama_title, i)
         print(res)
 
-get_all_episode_info("사마귀 : 살인자의 외출")
+get_all_episode_info("눈물의 여왕")
