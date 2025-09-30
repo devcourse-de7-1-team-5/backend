@@ -1,8 +1,8 @@
 from django.urls import path
 
-from todo.views import TodoList, TotoDetail
+from todo.views import DramaList, DramaDetail
 
 urlpatterns = [
-    path('todos/', TodoList.as_view(), name='todo_list'),
-    path('todos/<int:pk>/', TotoDetail.as_view(), name='todo_detail')
+    path('dramas/', DramaList.as_view(), name='drama-list'),
+    path('dramas/<int:pk>/', DramaDetail.as_view(), name='drama-detail')
 ]
