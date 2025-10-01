@@ -12,6 +12,9 @@ class News(models.Model):
     link = models.URLField(max_length=500, null=True, blank=True, unique=True)
     objects = models.Manager()
 
+    class Meta:
+        verbose_name = "News"
+        verbose_name_plural = "News"
 
     def __str__(self):
         return self.title

@@ -123,11 +123,12 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
                 "div.sds-comps-profile-info-title span.sds-comps-text a span.sds-comps-text"
             )
 
+
             item = self.response_cls(
                 title=get_value_or_none(title_tag),
                 content=get_value_or_none(body_tag),
                 marks=[get_value_or_none(m) for m in mark_tags],
-                link=get_value_or_none(link_tag),
+                link=link_tag.get('href') if link_tag else None,
                 date=parse_date(get_value_or_none(date_tag)),
                 press=get_value_or_none(press_tag)
             )
