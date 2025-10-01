@@ -4,7 +4,7 @@ from urllib.parse import urlparse, parse_qs
 import requests
 
 from common.base import BaseResponse
-from common.utils import get_value_or_none, parse_html_to_soup
+from common.bs4_util import get_value_or_none, parse_html_to_soup
 
 T = TypeVar("T", bound=BaseResponse)
 
