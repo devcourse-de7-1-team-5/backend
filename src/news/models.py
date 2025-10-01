@@ -9,7 +9,9 @@ class News(models.Model):
     content = models.TextField(null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     press = models.CharField(max_length=100, null=True, blank=True)
-    link = models.URLField(max_length=500, null=True, blank=True)
+    link = models.URLField(max_length=500, null=True, blank=True, unique=True)
+    objects = models.Manager()
+
 
     def __str__(self):
         return self.title
