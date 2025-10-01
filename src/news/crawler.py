@@ -5,14 +5,15 @@ import requests
 
 from common.base import BaseResponse
 from common.bs4_util import get_value_or_none, parse_html_to_soup
+from common.date_util import parse_date
 
 T = TypeVar("T", bound=BaseResponse)
 
 
 class NaverNewsItem(BaseResponse):
-    def __init__(self, title, body, marks, link, date, press):
+    def __init__(self, title, content, marks, link, date, press):
         self.title = title
-        self.body = body
+        self.content = content
         self.marks = marks
         self.link = link
         self.date = date
@@ -21,7 +22,7 @@ class NaverNewsItem(BaseResponse):
     def to_dict(self):
         return {
             "title": self.title,
-            "content": self.body,
+            "content": self.content,
             "marks": self.marks,
             "link": self.link,
             "date": self.date,
@@ -62,6 +63,13 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
             "nso": f"so:r,p:from{ds.replace('.', '')}to{de.replace('.', '')},a:all",
         }
         self.response_cls = NaverNewsItem
+
+    def all(self):
+        all_news: List[T] = []
+        while self.next_url:
+            news_page = self._fetch_next()
+            all_news.extend(news_page)
+        return all_news
 
     def __iter__(self):
         return self
@@ -117,10 +125,10 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
 
             item = self.response_cls(
                 title=get_value_or_none(title_tag),
-                body=get_value_or_none(body_tag),
+                content=get_value_or_none(body_tag),
                 marks=[get_value_or_none(m) for m in mark_tags],
                 link=get_value_or_none(link_tag),
-                date=get_value_or_none(date_tag),
+                date=parse_date(get_value_or_none(date_tag)),
                 press=get_value_or_none(press_tag)
             )
             news_list.append(item)
