@@ -1,7 +1,25 @@
 from rest_framework import serializers
 
-from .models import Drama, ExternalIDMapping # ExternalIDMapping 모델을 임포트합니다.
+from .models import Drama, ExternalIDMapping, EpisodeInfo # ExternalIDMapping 모델을 임포트합니다.
 
+class EpisodeInfoSerializer(serializers.ModelSerializer):
+    # ForeignKey로 연결된 Drama 모델을 어떻게 보여줄지 선택 가능
+    # 기본적으로는 drama의 id가 표시됨
+    # 만약 Drama의 특정 필드를 같이 보고 싶다면 StringRelatedField()나 SlugRelatedField() 사용 가능
+    drama = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = EpisodeInfo
+        fields = [
+            'id',
+            'drama',
+            'episode_no',
+            'date',
+            'rating',
+            'synopsis',
+            'query',
+            'source_url',
+        ]
 
 class DramaListSerializer(serializers.ModelSerializer): # 'a' 제거됨
     class Meta:
@@ -10,6 +28,8 @@ class DramaListSerializer(serializers.ModelSerializer): # 'a' 제거됨
         fields = ['id', 'title', 'channel','start_date','end_date'] 
 
 class DramaDetailSerializer(serializers.ModelSerializer): # 'a' 제거됨
+    episodes = EpisodeInfoSerializer(source='episodeinfo_set', many=True, read_only=True)
+
     # 상세 정보에서 외부 ID를 보여주기 위한 필드
     external_ids = serializers.SerializerMethodField()
     
@@ -25,3 +45,5 @@ class DramaDetailSerializer(serializers.ModelSerializer): # 'a' 제거됨
             'source': mapping.source_name,
             'external_id': mapping.external_id
         } for mapping in mappings]
+    
+

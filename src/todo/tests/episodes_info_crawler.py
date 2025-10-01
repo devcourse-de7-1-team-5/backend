@@ -1,3 +1,9 @@
+# import os
+# import django
+
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")  # 프로젝트에 맞게
+# django.setup()
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -10,6 +16,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from urllib.parse import quote_plus
+
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+
+# from todo.models import Drama
 
 def parse_dates_and_eps(text: str):
     """
@@ -101,25 +111,37 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
 
     def _try_with_suffix(suffix: str):
         query = f"{drama_title} {episode_no}{suffix}"
-        url = f"https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query={quote_plus(query)}"
+        # url = f"https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query={quote_plus(query)}"
+        url = f"https://search.naver.com/search.naver?query={quote_plus(query)}"
         driver.get(url)
 
-        # '방송 에피소드' 모듈 컨테이너 (sc_new cs_common_module ... _kgs_broadcast_episode ...)
-        module = wait.until(
+        try:
+            # '방송 에피소드' 모듈 컨테이너 (sc_new cs_common_module ... _kgs_broadcast_episode ...)
+            module = wait.until(
             EC.presence_of_element_located((
                 By.XPATH,
                 "//div[contains(@class,'_kgs_broadcast_episode')]"
             ))
         )
+        except TimeoutException:
+            print("방송 에피소드 요소를 찾지 못했습니다 (Timeout).")
+            return {"회차": None, "방영일자": None, "시청률": None, "줄거리": None, "query": None, "source_url": None}
+        except NoSuchElementException:
+            print("방송 에피소드 요소 자체가 존재하지 않습니다.")
+            return {"회차": None, "방영일자": None, "시청률": None, "줄거리": None, "query": None, "source_url": None}
+
 
         # --- 시청률 ---
         # dl.info 안에서 dt='시청률'인 그룹의 dd/em.value를 타겟
-        rating_el = module.find_element(
+        try:
+            rating_el = module.find_element(
             By.XPATH,
             ".//dl[contains(@class,'info')]//div[contains(@class,'info_group')][.//dd[em[contains(@class,'value')]]]//dd/em[contains(@class,'value')]"
-        )
-        rating = rating_el.text.strip()[:-1]
-
+            )
+            rating = rating_el.text.strip()[:-1]
+        except NoSuchElementException:
+            rating = None
+        
         # # --- 줄거리 ---
         # # 줄거리 텍스트 영역 (span.desc._text). '펼쳐보기' 버튼이 있으면 먼저 클릭
         # try:
@@ -130,35 +152,53 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
         # except Exception:
         #     pass
 
-        syn_el = module.find_element(
+        try:
+            syn_el = module.find_element(
             By.XPATH,
             ".//div[contains(@class,'text_expand')]//span[contains(@class,'_text')]"
-        )
-        synopsis = syn_el.text.strip()
+            )
+            synopsis = syn_el.text.strip()
+        except NoSuchElementException:
+            synopsis = None
+        
 
         # --- 방영일 ---
-        date_group = module.find_element(
+        try:
+            date_group = module.find_element(
             By.XPATH,
             ".//dl[contains(@class,'info')]//div[contains(@class,'info_group')][.//dt[contains(.,'방송일')]]"
-        )
-        dd_elem = date_group.find_element(By.TAG_NAME, "dd")
-        raw_text = dd_elem.text.strip()
-        date = raw_text.split()[0].rstrip(".")
+            )
+            dd_elem = date_group.find_element(By.TAG_NAME, "dd")
+            raw_text = dd_elem.text.strip()
+            date = raw_text.split()[0].rstrip(".").replace(".", "-")
+        except NoSuchElementException:
+            date = None
+        
         
         return {
-            "회차": episode_no,
-            "방영일자": date,
-            "시청률": rating,
-            "줄거리": synopsis,
+            "episode_no": episode_no,
+            "date": date,
+            "rating": rating,
+            "synopsis": synopsis,
+            "query": query,
+            "source_url": url
         }
 
     try:
         return _try_with_suffix("회")
     except Exception as e:
         print(e)
-        return {"회차": None, "방영일자": None, "시청률": None, "줄거리": None}
+        return {"episode_no": None,
+            "date": None,
+            "rating": None,
+            "synopsis": None,
+            "query": None,
+            "source_url": None
+        }
 
 def get_all_episode_info(drama_title: str):
+
+    episodes_list = []
 
     # 크롬 옵션 설정
     options = Options()
@@ -186,8 +226,17 @@ def get_all_episode_info(drama_title: str):
 
     num_episodes = meta["총부작"]
 
+    if num_episodes == None:
+        print("총 회차 수 정보가 없습니다")
+        driver.quit()
+        return episodes_list
+
     for i in range(1,num_episodes+1):
         res = get_episode_rating_and_synopsis(driver, drama_title, i)
-        print(res)
+        # print(res)
+        # print(drama_title + " ",num_episodes)
+        episodes_list.append(res)
 
-get_all_episode_info("눈물의 여왕")
+    driver.quit()
+
+    return episodes_list

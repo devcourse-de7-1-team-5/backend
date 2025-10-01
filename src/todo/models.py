@@ -20,3 +20,16 @@ class ExternalIDMapping(models.Model):
 
     def __str__(self):
         return f"{self.drama.title} - {self.source_name}: {self.external_id}"
+    
+class EpisodeInfo(models.Model):
+    drama = models.ForeignKey(Drama, on_delete=models.CASCADE)  # 드라마
+    episode_no = models.IntegerField()                          # 회차
+    date = models.DateField()                                   # 방영일
+    rating = models.FloatField()                                # 시청률
+    synopsis = models.TextField(null=True, blank=True)          # 줄거리
+    query = models.CharField(max_length=50)                     # 검색 쿼리
+    source_url = models.CharField(max_length=200)               # 해당 url
+
+    def __str__(self):
+        return f"{self.drama.title} + {self.episode_no} + 회차"
+
