@@ -1,25 +1,23 @@
-from django.core.management.base import BaseCommand
-from todo.models import Drama, ExternalIDMapping 
-from datetime import datetime, date 
-from django.db import IntegrityError
-
-# Selenium imports
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
+import re
+import time
+from datetime import datetime, date
 
 from bs4 import BeautifulSoup
-import time
-import re
-import urllib.parse 
+from django.core.management.base import BaseCommand
+# Selenium imports
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, \
+    ElementClickInterceptedException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+
+from todo.models import Drama, ExternalIDMapping
 
 # 2023년 1월 1일 이후 시작 드라마만 필터링하기 위한 기준 날짜
 MIN_START_DATE = date(2023, 1, 1)
-<<<<<<< HEAD
 # 최대 대기 시간 설정 (초 단위)
 MAX_WAIT_TIME = 30 
 
@@ -46,7 +44,6 @@ class Command(BaseCommand):
         
         self.stdout.write(self.style.SUCCESS('\n--- 모든 크롤링 작업 완료 ---'))
 
-=======
 # 최대 대기 시간 설정 (초 단위) - 페이지 로드 시간 초과 방지를 위해 넉넉하게 30초로 설정
 MAX_WAIT_TIME = 30 
 
@@ -61,7 +58,6 @@ class Command(BaseCommand):
         self._crawl_kbs_drama("KBS_DRAMA_OFFICIAL") 
         
         self.stdout.write(self.style.SUCCESS('--- 크롤링 완료 ---'))
->>>>>>> origin/dev
 
     # --- 2. KBS 공식 페이지 크롤링 (무한 스크롤) ---
     def _crawl_kbs_drama(self, source_name): 
@@ -239,7 +235,6 @@ class Command(BaseCommand):
             time.sleep(0.05)
 
         self.stdout.write(self.style.SUCCESS(f"  > {source_name}: 새로운 드라마 {new_count}개 생성 및 매핑 완료."))
-<<<<<<< HEAD
 
 
     # --- 3. 네이버 리스트 페이지 크롤링 (페이지네이션 적용) ---
@@ -395,5 +390,3 @@ class Command(BaseCommand):
             list_driver.quit()
 
         self.stdout.write(self.style.SUCCESS(f'\n--- 네이버 리스트 크롤링 완료. 총 {total_saved_count}개 드라마 저장/업데이트 완료 ---'))
-=======
->>>>>>> origin/dev
