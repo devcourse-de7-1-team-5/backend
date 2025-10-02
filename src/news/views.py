@@ -30,5 +30,6 @@ def crawl(request):
 
     # when
     News.objects.bulk_create(news_models, ignore_conflicts=True)
-    return render(request, 'news/index.html')
+    news_list = News.objects.all()
+    return render(request, 'news/index.html', {'news_list': news_list})
     return None

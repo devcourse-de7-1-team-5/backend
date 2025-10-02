@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from dramas.views import drama_list_view 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('todo.urls')),
-    path('news/', include('news.urls'))
+    path('api/', include('dramas.urls')),
+    path('news/', include('news.urls')),
+    path('dramas/', drama_list_view, name='drama_list'),
 ]

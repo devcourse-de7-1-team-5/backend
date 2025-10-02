@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-from todo.models import EpisodeInfo,Drama
-from todo.tests.episodes_info_crawler import get_all_episode_info
+from dramas.models import EpisodeInfo,Drama
+from dramas.tests.episodes_info_crawler import get_all_episode_info
 
 
 class Command(BaseCommand):
@@ -32,7 +32,3 @@ class Command(BaseCommand):
                         "source_url": episode["source_url"],
     }
 )
-            
-
-
-    

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from todo.models import Drama  # [핵심 수정] DB 저장을 위해 Drama 모델 임포트
+from dramas.models import Drama  
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -77,14 +77,14 @@ class Command(BaseCommand):
                         else:
                             continue # 날짜 정보 없으면 건너뛰기
 
-                        # --- [핵심 수정: DB 저장 로직] ---
+                        # [핵심 수정: DB 저장 로직] 
                         drama, created = Drama.objects.update_or_create(
                             title=drama_data['title'],
                             defaults={
                                 'channel': drama_data['channel'],
                                 'start_date': drama_data['start_date'],
                                 'end_date': drama_data['end_date'],
-                                'description': None, # 네이버 리스트 뷰에서 줄거리는 추출하지 않음
+                                'description': None, # 네이버 리스트 뷰에서 줄거리는 추출 안함
                             }
                         )
                         
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                             self.stdout.write(self.style.SUCCESS(f"  > DB 저장 완료 (신규)"))
                         else:
                             self.stdout.write(f"  > DB 저장 완료 (업데이트)")
-                        # ---------------------------------
+
                         
                     except Exception as e:
                         # 예외 발생 시에도 루프는 계속 진행
