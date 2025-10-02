@@ -119,3 +119,4 @@ class Command(BaseCommand):
         # 7. 모든 URL 크롤링 완료 후 드라이버 종료
         driver.quit()
         self.stdout.write(self.style.SUCCESS('\n\n>> 모든 연도 드라마 크롤링 작업 완료!'))
+        
