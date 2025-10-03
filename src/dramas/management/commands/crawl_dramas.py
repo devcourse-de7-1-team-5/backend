@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from todo.models import Drama  # [핵심 수정] DB 저장을 위해 Drama 모델 임포트
+from dramas.models import Drama  # [핵심 수정] DB 저장을 위해 Drama 모델 임포트
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
