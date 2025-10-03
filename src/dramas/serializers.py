@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Drama, ExternalIDMapping, EpisodeInfo # ExternalIDMapping 모델을 임포트합니다.
+from dramas.models import Drama, EpisodeInfo # ExternalIDMapping 모델을 임포트합니다.
 
 class EpisodeInfoSerializer(serializers.ModelSerializer):
     # ForeignKey로 연결된 Drama 모델을 어떻게 보여줄지 선택 가능
