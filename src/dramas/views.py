@@ -17,4 +17,4 @@ class DramaDetail(generics.RetrieveUpdateDestroyAPIView):
 
 def drama_list_view(request):
     dramas = Drama.objects.all().order_by('start_date')
-    return render(request, 'dramas/drama_listç.html', {'dramas': dramas})
+    return render(request, 'dramas/drama_list.html', {'dramas': dramas})
