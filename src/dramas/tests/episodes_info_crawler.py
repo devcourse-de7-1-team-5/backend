@@ -230,6 +230,13 @@ def get_all_episode_info(drama_title: str):
         print("총 회차 수 정보가 없습니다")
         driver.quit()
         return episodes_list
+    
+    elif num_episodes > 30:
+        print(f"{drama_title}: 30회차가 넘어가는 드라마입니다")
+        driver.quit()
+        return episodes_list
+    
+    print(f"{drama_title}: 총 {num_episodes} 부작")
 
     for i in range(1,num_episodes+1):
         res = get_episode_rating_and_synopsis(driver, drama_title, i)
