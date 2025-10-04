@@ -1,6 +1,6 @@
 from django.urls import path
 
-from todo.views import DramaList, DramaDetail
+from dramas.views import DramaList, DramaDetail
 
 urlpatterns = [
     path('dramas/', DramaList.as_view(), name='drama-list'),

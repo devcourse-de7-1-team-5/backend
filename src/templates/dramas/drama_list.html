@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>드라마 목록</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">드라마 목록</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>제목</th>
+                <th>방송사</th>
+                <th>시작일</th>
+                <th>종영일</th>
+                <th>줄거리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drama in dramas %}
+            <tr>
+                <td>{{ drama.title }}</td>
+                <td>{{ drama.channel }}</td>
+                <td>{{ drama.start_date }}</td>
+                <td>{{ drama.end_date|default:"-" }}</td>
+                <td>{{ drama.description|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">등록된 드라마가 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
