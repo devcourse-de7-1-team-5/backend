@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ drama.title }}</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      color: #333;
+    }
+    .episode-list {
+      list-style: none;
+      padding: 0;
+    }
+    .episode-item {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+    }
+    .episode-item h3 {
+      margin-top: 0;
+    }
+    .episode-item a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .episode-item a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 드라마 기본 정보 -->
+    <h1>{{ drama.title }}</h1>
+    <p><strong>방송사:</strong> {{ drama.channel }}</p>
+    <p>
+      <strong>방영 기간:</strong> {{ drama.start_date }} ~ {{ drama.end_date }}
+    </p>
+    {% if drama.description %}
+      <p>{{ drama.description }}</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- 그래프 그릴 영역 -->
+    <h2>시청률 그래프</h2>
+    <canvas id="ratingChart" width="600" height="300"></canvas>
+    
+    <hr>
+
+    <!-- 에피소드 목록 -->
+    <h2>에피소드 목록</h2>
+    {% if drama.episodes %}
+      <ul class="episode-list">
+        {% for ep in drama.episodes %}
+          <li class="episode-item">
+            <h3>{{ ep.episode_no }}회 ({{ ep.date }})</h3>
+            <p><strong>시청률:</strong> {{ ep.rating }}%</p>
+            <p>{{ ep.synopsis }}</p>
+            <p>
+              🔗 <a href="{{ ep.source_url }}" target="_blank">네이버 검색 결과 보기</a>
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>등록된 에피소드가 없습니다.</p>
+    {% endif %}
+  </div>
+
+  <!-- 그래프 스크립트 (body 맨 아래에 두는 게 일반적) -->
+  <script>
+    // 장고 템플릿 데이터 → 자바스크립트 배열로 변환
+    const labels = [{% for ep in drama.episodes %} {{ ep.episode_no }}, {% endfor %}];
+    const data = [{% for ep in drama.episodes %} {{ ep.rating }}, {% endfor %}];
+    
+    // const episodes = JSON.parse(document.getElementById("episodes-data").textContent);
+
+    // const labels = episodes.map(ep => ep.episode_no);
+    // const data = episodes.map(ep => ep.rating);
+
+    const ctx = document.getElementById('ratingChart').getContext('2d');
+    const ratingChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels, // x축 (회차 번호)
+        datasets: [{
+          label: '시청률 (%)',
+          data: data,    // y축 (시청률)
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0, 0, 255, 0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
