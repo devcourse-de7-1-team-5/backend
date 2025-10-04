@@ -9,16 +9,22 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS("드라마 회차별 정보 크롤링!"))
 
-        titles = list(Drama.objects.values_list('title', flat=True))
+        # titles = list(Drama.objects.values_list('title', flat=True))
         
         for drama in Drama.objects.all():
             print("="*10 + drama.title + "="*10)
             episodes_list = get_all_episode_info(drama.title)
             
-            if episodes_list == None: continue
+            if not episodes_list: 
+                self.stdout.write(self.style.SUCCESS(f"{drama.title} 삭제 : 방영정보 없음."))
+                drama.delete()
+                continue
 
             for episode in episodes_list:
-                if all(value is None for value in episode.values()): continue
+                if all(value is None for value in episode.values()): 
+                    self.stdout.write(self.style.SUCCESS(f"{drama.title} 삭제 : 회차별 정보 없음."))
+                    drama.delete()
+                    break
 
                 print(f"{drama.title} {episode['episode_no']}회 저장중...")
                 EpisodeInfo.objects.update_or_create(
