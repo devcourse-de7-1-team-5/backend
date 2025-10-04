@@ -1,16 +1,13 @@
-from typing import List, Optional, TypeVar, Generic, Iterator
-from urllib.parse import urlparse, parse_qs
+from typing import List, Iterator
+from urllib.parse import urlparse, parse_qs, urlencode
 
 import requests
 
-from common.base import BaseResponse
 from common.bs4_util import get_value_or_none, parse_html_to_soup
-from common.date_util import parse_date
-
-T = TypeVar("T", bound=BaseResponse)
+from common.date_util import parse_search_to_date
 
 
-class NaverNewsItem(BaseResponse):
+class NaverNewsItem:
     def __init__(self, title, content, marks, link, date, press):
         self.title = title
         self.content = content
@@ -30,9 +27,9 @@ class NaverNewsItem(BaseResponse):
         }
 
 
-class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
+class NaverNewsCrawler(Iterator[List[NaverNewsItem]]):
     BASE_URL = "https://s.search.naver.com/p/newssearch/3/api/tab/more"
-    headers = {
+    _headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -44,12 +41,11 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
     }
 
     def __init__(self, query: str, ds: str, de: str,
-        headers: dict = None):
+        headers: dict = None, *, start: str = "0"):
         self.query = query
         self.ds = ds
         self.de = de
-        self.headers = headers or self.headers
-        self.next_url: Optional[str] = self.BASE_URL
+        self._headers = headers or self._headers
         self.params = {
             "cluster_rank": "0",
             "ds": ds,
@@ -60,43 +56,49 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
             "ssc": "tab.news.all",
             "sort": "0",
             "sm": "tab_smr",
+            "start": "0",
             "nso": f"so:r,p:from{ds.replace('.', '')}to{de.replace('.', '')},a:all",
         }
+        self.next_url = f"{self.BASE_URL}?{urlencode(self.params)}"
         self.response_cls = NaverNewsItem
 
     def all(self):
-        all_news: List[T] = []
+        all_news: List[NaverNewsItem] = []
         while self.next_url:
             news_page = self._fetch_next()
             all_news.extend(news_page)
         return all_news
 
+    def has_next_page(self):
+        return self.next_url is not None
+
     def __iter__(self):
         return self
 
-    def __next__(self) -> List[T]:
-        if not self.next_url:
-            raise StopIteration
-        return self._fetch_next()  # 한 페이지 뉴스 전체 반환
+    def __next__(self) -> List[NaverNewsItem]:
 
-    def _fetch_next(self) -> List[T]:
+        if not self.next_url:
+            raise StopIteration("No more pages to fetch.")
+        return self._fetch_next()
+
+    def _fetch_next(self) -> List[NaverNewsItem]:
         response = requests.get(self.next_url, params=self.params,
-                                headers=self.headers)
+                                headers=self._headers)
         response.raise_for_status()
         data = response.json()
 
-        # 다음 페이지 URL 갱신
         next_url_str = data.get('url')
         if next_url_str:
             parsed = urlparse(next_url_str)
             self.next_url = next_url_str
             self.params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+
         else:
             self.next_url = None
 
         return self._parse_news(data)
 
-    def _parse_news(self, data) -> List[T]:
+    def _parse_news(self, data) -> List[NaverNewsItem]:
         htmls = [item['html'] for item in data.get('collection', [])]
         if not htmls:
             return []
@@ -107,7 +109,7 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
             return []
 
         items = news_item_tab.select('div.UD3s7I8expz3WkwQ004B')
-        news_list: List[T] = []
+        news_list: List[NaverNewsItem] = []
 
         for news_item in items:
             title_tag = news_item.select_one(
@@ -129,7 +131,7 @@ class NaverNewsCrawler(Generic[T], Iterator[List[T]]):
                 content=get_value_or_none(body_tag),
                 marks=[get_value_or_none(m) for m in mark_tags],
                 link=link_tag.get('href') if link_tag else None,
-                date=parse_date(get_value_or_none(date_tag)),
+                date=parse_search_to_date(get_value_or_none(date_tag)),
                 press=get_value_or_none(press_tag)
             )
             news_list.append(item)
