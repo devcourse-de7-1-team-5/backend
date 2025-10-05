@@ -6,6 +6,7 @@ class Drama(models.Model):
     description = models.TextField(null=True, blank=True)  # 줄거리
     start_date = models.DateField()                # 방영일
     end_date = models.DateField(null=True, blank=True)  # 종영일
+    objects = models.Manager()
     def __str__(self):
         return self.title
 
@@ -22,13 +23,15 @@ class ExternalIDMapping(models.Model):
         return f"{self.drama.title} - {self.source_name}: {self.external_id}"
     
 class EpisodeInfo(models.Model):
-    drama = models.ForeignKey(Drama, on_delete=models.CASCADE)  # 드라마
+    drama = models.ForeignKey(Drama, on_delete=models.CASCADE,
+                              related_name="episodes")  # 드라마
     episode_no = models.IntegerField()                          # 회차
     date = models.DateField()                                   # 방영일
     rating = models.FloatField()                                # 시청률
     synopsis = models.TextField(null=True, blank=True)          # 줄거리
     query = models.CharField(max_length=50)                     # 검색 쿼리
     source_url = models.CharField(max_length=200)               # 해당 url
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.drama.title} + {self.episode_no} + 회차"
