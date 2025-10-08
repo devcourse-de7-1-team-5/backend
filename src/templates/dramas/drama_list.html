@@ -1,40 +1,57 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>드라마 목록</title>
-    <style>
-        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
+    <meta charset="UTF-8">
+    <title>드라마 트렌드</title>
+    <link rel="stylesheet" href="{% static 'dramas/drama_dashboard.css' %}">
 </head>
 <body>
-    <h1 style="text-align:center;">드라마 목록</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>제목</th>
-                <th>방송사</th>
-                <th>시작일</th>
-                <th>종영일</th>
-                <th>줄거리</th>
-            </tr>
-        </thead>
-        <tbody>
+
+    <header>
+        <h1>📺 드라마 트렌드 한눈에 보기</h1>
+        <div class="filters">
+            <select id="yearSelect">
+                <option value="all">전체 연도</option>
+                {% for year in year_list %}
+                    <option value="{{ year }}">{{ year }}년</option>
+                {% endfor %}
+            </select>
+
+            <select id="genreSelect">
+                <option value="all">전체 장르</option>
+                {% for genre in genre_list %}
+                    <option value="{{ genre }}">{{ genre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </header>
+
+    <main>
+        {% if dramas %}
+        <section class="drama-grid">
             {% for drama in dramas %}
-            <tr>
-                <td>{{ drama.title }}</td>
-                <td>{{ drama.channel }}</td>
-                <td>{{ drama.start_date }}</td>
-                <td>{{ drama.end_date|default:"-" }}</td>
-                <td>{{ drama.description|default:"-" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">등록된 드라마가 없습니다.</td>
-            </tr>
+            <div class="drama-card" data-year="{{ drama.start_date.year }}">
+                <div class="thumbnail">
+                    {% if drama.img_url %}
+                        <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
+                    {% else %}
+                        <img src="{% static 'dramas/images/default_thumb.jpg' %}" alt="No Image">
+                    {% endif %}
+                </div>
+                <div class="drama-info">
+                    <h2 class="title">{{ drama.title }}</h2>
+                    <p class="channel"> {{ drama.channel }}</p>
+                    <p class="period">{{ drama.start_date }} ~ {{ drama.end_date|default:"방영 중" }}</p>
+                    <p class="desc">{{ drama.description|truncatechars:100|default:"줄거리 정보 없음" }}</p>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </section>
+        {% else %}
+        <p class="empty">등록된 드라마가 없습니다.</p>
+        {% endif %}
+    </main>
+
 </body>
 </html>
