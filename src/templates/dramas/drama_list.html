@@ -18,6 +18,7 @@
                 <th>시작일</th>
                 <th>종영일</th>
                 <th>줄거리</th>
+                <th>장르</th>
             </tr>
         </thead>
         <tbody>
@@ -28,10 +29,20 @@
                 <td>{{ drama.start_date }}</td>
                 <td>{{ drama.end_date|default:"-" }}</td>
                 <td>{{ drama.description|default:"-" }}</td>
+                <td>
+                    {% if drama.genres.exists %}
+                        {% for g in drama.genres.all|slice:":3" %}
+                            {{ g.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        {% if drama.genres.count > 3 %}…{% endif %}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5">등록된 드라마가 없습니다.</td>
+                <td colspan="6">등록된 드라마가 없습니다.</td>
             </tr>
             {% endfor %}
         </tbody>

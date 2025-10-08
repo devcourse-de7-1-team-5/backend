@@ -7,6 +7,7 @@ class Drama(models.Model):
     start_date = models.DateField()                # 방영일
     end_date = models.DateField(null=True, blank=True)  # 종영일
     objects = models.Manager()
+    
     def __str__(self):
         return self.title
 
@@ -36,3 +37,9 @@ class EpisodeInfo(models.Model):
     def __str__(self):
         return f"{self.drama.title} + {self.episode_no} + 회차"
 
+class Genre(models.Model):
+    drama = models.ForeignKey(Drama, on_delete=models.CASCADE, related_name="genres")   # 장르
+    name = models.CharField(max_length=50)                                              # 장르 이름
+
+    def __str__(self):
+        return f"{self.drama.title} - {self.name}"
