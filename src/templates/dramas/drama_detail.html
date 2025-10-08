@@ -66,7 +66,7 @@
     <h2>에피소드 목록</h2>
     {% if drama.episodes %}
       <ul class="episode-list">
-        {% for ep in drama.episodes %}
+        {% for ep in drama.episodes.all %}
           <li class="episode-item">
             <h3>{{ ep.episode_no }}회 ({{ ep.date }})</h3>
             <p><strong>시청률:</strong> {{ ep.rating }}%</p>
@@ -74,6 +74,25 @@
             <p>
               🔗 <a href="{{ ep.source_url }}" target="_blank">네이버 검색 결과 보기</a>
             </p>
+
+            <!-- 더보기: 뉴스 목록 -->
+            <details class="news-block">
+              <summary>
+                더보기 (뉴스 {{ ep.drama_news.count }}건)
+              </summary>
+            <ul class="news-list">
+              {% for n in ep.drama_news.all %}
+                <li class="news-item">
+                  <strong>{{n.title}} : {{ n.date }} • {{ n.press }}</strong><br>
+                  <a href="{{ n.link }}" target="_blank">{{ n.title }}</a>
+                  {% if n.content %}<p>{{ n.content }}</p>{% endif %}
+                </li>
+              {% empty %}
+                <li>등록된 뉴스가 없습니다.</li>
+            {% endfor %}
+            </ul>
+            </details>
+
           </li>
         {% endfor %}
       </ul>
@@ -85,8 +104,8 @@
   <!-- 그래프 스크립트 (body 맨 아래에 두는 게 일반적) -->
   <script>
     // 장고 템플릿 데이터 → 자바스크립트 배열로 변환
-    const labels = [{% for ep in drama.episodes %} {{ ep.episode_no }}, {% endfor %}];
-    const data = [{% for ep in drama.episodes %} {{ ep.rating }}, {% endfor %}];
+    const labels = [{% for ep in drama.episodes.all %} {{ ep.episode_no }}, {% endfor %}];
+    const data = [{% for ep in drama.episodes.all %} {{ ep.rating }}, {% endfor %}];
     
     // const episodes = JSON.parse(document.getElementById("episodes-data").textContent);
 
