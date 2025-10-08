@@ -31,7 +31,7 @@
         {% if dramas %}
         <section class="drama-grid">
             {% for drama in dramas %}
-            <div class="drama-card" data-year="{{ drama.start_date.year }}">
+            <div class="drama-card" data-year="{{ drama.start_date.year }}" data-genre="{{ drama.genre }}">
                 <div class="thumbnail">
                     {% if drama.img_url %}
                         <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
@@ -41,10 +41,23 @@
                 </div>
                 <div class="drama-info">
                     <h2 class="title">{{ drama.title }}</h2>
-                    <p class="channel"> {{ drama.channel }}</p>
+                    <p class="channel">{{ drama.channel }}</p>
                     <p class="period">{{ drama.start_date }} ~ {{ drama.end_date|default:"방영 중" }}</p>
+                    <p class="genre">
+                        장르:
+                        {% if drama.genres.all %}
+                            {% for g in drama.genres.all|slice:":3" %}
+                                {{ g.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            {% if drama.genres.count > 3 %} ...{% endif %}
+                        {% else %}
+                            정보 없음
+                        {% endif %}
+                    </p>
+
                     <p class="desc">{{ drama.description|truncatechars:100|default:"줄거리 정보 없음" }}</p>
                 </div>
+
             </div>
             {% endfor %}
         </section>
