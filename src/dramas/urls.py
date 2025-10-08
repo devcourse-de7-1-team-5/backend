@@ -1,5 +1,4 @@
 from django.urls import path
-
 from dramas.views import DramaList, DramaDetail
 
 urlpatterns = [

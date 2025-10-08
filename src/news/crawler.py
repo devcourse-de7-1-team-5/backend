@@ -1,7 +1,7 @@
-from typing import List, Iterator
+from typing import List
 from urllib.parse import urlparse, parse_qs, urlencode
 
-import requests
+import httpx
 
 from common.bs4_util import get_value_or_none, parse_html_to_soup
 from common.date_util import parse_search_to_date
@@ -27,7 +27,8 @@ class NaverNewsItem:
         }
 
 
-class NaverNewsCrawler(Iterator[List[NaverNewsItem]]):
+class NaverNewsCrawler:
+    """Naver News 비동기 크롤러"""
     BASE_URL = "https://s.search.naver.com/p/newssearch/3/api/tab/more"
     _headers = {
         "User-Agent": (
@@ -41,7 +42,7 @@ class NaverNewsCrawler(Iterator[List[NaverNewsItem]]):
     }
 
     def __init__(self, query: str, ds: str, de: str,
-        headers: dict = None, *, start: str = "0"):
+                 headers: dict = None, *, start: str = "0"):
         self.query = query
         self.ds = ds
         self.de = de
@@ -62,28 +63,27 @@ class NaverNewsCrawler(Iterator[List[NaverNewsItem]]):
         self.next_url = f"{self.BASE_URL}?{urlencode(self.params)}"
         self.response_cls = NaverNewsItem
 
-    def all(self):
+    async def all(self) -> List[NaverNewsItem]:
         all_news: List[NaverNewsItem] = []
-        while self.next_url:
-            news_page = self._fetch_next()
+        async for news_page in self:
             all_news.extend(news_page)
         return all_news
 
-    def has_next_page(self):
+    def has_next_page(self) -> bool:
         return self.next_url is not None
 
-    def __iter__(self):
+    def __aiter__(self):
         return self
 
-    def __next__(self) -> List[NaverNewsItem]:
+    async def __anext__(self) -> List[NaverNewsItem]:
+        if not self.has_next_page():
+            raise StopAsyncIteration("No more pages to fetch.")
+        return await self._fetch_next()
 
-        if not self.next_url:
-            raise StopIteration("No more pages to fetch.")
-        return self._fetch_next()
-
-    def _fetch_next(self) -> List[NaverNewsItem]:
-        response = requests.get(self.next_url, params=self.params,
-                                headers=self._headers)
+    async def _fetch_next(self) -> List[NaverNewsItem]:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(self.next_url, params=self.params, headers=self._headers)
+        
         response.raise_for_status()
         data = response.json()
 

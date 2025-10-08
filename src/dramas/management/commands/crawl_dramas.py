@@ -21,13 +21,13 @@ class Command(BaseCommand):
         self.stdout.write(">> 크롬 드라이버를 초기화합니다...")
         
         # 1. 드라이버 설정 (Headless 모드 추가)
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')           # 창을 띄우지 않고 실행
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')           # 창을 띄우지 않고 실행
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
         
         service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options) # 옵션 적용
+        driver = webdriver.Chrome(service=service, options=chrome_options) # 옵션 적용
 
         # 2. URL 목록 순회
         for url in URLS:

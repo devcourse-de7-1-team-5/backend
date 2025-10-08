@@ -1,5 +1,5 @@
 from typing import List
-
+from asgiref.sync import sync_to_async
 from django.test import TestCase
 
 from common.date_util import parse_date_to_search
@@ -10,6 +10,7 @@ from news.models import News
 
 class TestNewsCrawling(TestCase):
 
+    @sync_to_async
     def generate_drama_mock(self):
         self.drama = Drama(
             title="태양의 후예",
@@ -31,7 +32,7 @@ class TestNewsCrawling(TestCase):
         self.drama_ep7.save()
         self.assertIsNotNone(self.drama_ep7.id)
 
-    def test_naver_news_crawler(self):
+    async def test_naver_news_crawler(self):
         # given
         crawler = NaverNewsCrawler(
             query="태양의 후예",
@@ -39,7 +40,7 @@ class TestNewsCrawling(TestCase):
             de="2023.09.30"
         )
         # when
-        result: List[NaverNewsItem] = next(crawler)
+        result: List[NaverNewsItem] = await anext(crawler)
 
         # then
         self.assertIsNotNone(crawler.next_url)
@@ -51,7 +52,7 @@ class TestNewsCrawling(TestCase):
                          "K팝·K드라마 이어 K디저트·K도자기까지…스펙트럼 확장에 외신 '주목'"
                          )
 
-    def test_news_duplicates_not_saved(self):
+    async def test_news_duplicates_not_saved(self):
         """
         bulk_create 시 중복 링크는 무시되어
         DB에 동일한 뉴스가 두 번 저장되지 않아야 한다.
@@ -62,8 +63,8 @@ class TestNewsCrawling(TestCase):
             ds="2023.06.03",
             de="2023.09.14"
         )
-        self.generate_drama_mock()
-        data = next(crawler)
+        await self.generate_drama_mock()
+        data = await anext(crawler)
 
         crawler_data = data + data
 
@@ -81,15 +82,16 @@ class TestNewsCrawling(TestCase):
         ) for news in crawler_data]
 
         # when
-        News.objects.bulk_create(news_models, ignore_conflicts=True)
-        News.objects.bulk_create(news_models, ignore_conflicts=True)
+        await sync_to_async(News.objects.bulk_create)(news_models, ignore_conflicts=True)
+        await sync_to_async(News.objects.bulk_create)(news_models, ignore_conflicts=True)
 
         # then
-        self.assertEqual(News.objects.count(), expected_count)
+        count = await sync_to_async(News.objects.count)()
+        self.assertEqual(count, expected_count)
 
-    def test_news_crawler_all_method(self):
+    async def test_news_crawler_all_method(self):
         # given
-        self.generate_drama_mock()
+        await self.generate_drama_mock()
         search_ds = parse_date_to_search(str(self.drama.start_date))
         search_de = parse_date_to_search(str(self.drama.end_date))
 
@@ -99,7 +101,7 @@ class TestNewsCrawling(TestCase):
             ds=search_ds,
             de=search_de
         )
-        next_result: List[NaverNewsItem] = next(crawler)
+        next_result: List[NaverNewsItem] = await anext(crawler)
 
         # then
         self.assertNotEquals(int(crawler.params['start']), 0)
