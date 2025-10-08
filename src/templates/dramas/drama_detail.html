@@ -1,58 +1,56 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>{{ drama.title }}</title>
+  <link rel="stylesheet" href="{% static 'dramas/drama_detail.css' %}">
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 {
-      color: #333;
-    }
-    .episode-list {
-      list-style: none;
-      padding: 0;
-    }
-    .episode-item {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 15px;
-      margin-bottom: 15px;
-      background-color: #f9f9f9;
-    }
-    .episode-item h3 {
-      margin-top: 0;
-    }
-    .episode-item a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .episode-item a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  
 </head>
 <body>
   <div class="container">
-    <!-- 드라마 기본 정보 -->
     <h1>{{ drama.title }}</h1>
-    <p><strong>방송사:</strong> {{ drama.channel }}</p>
-    <p>
-      <strong>방영 기간:</strong> {{ drama.start_date }} ~ {{ drama.end_date }}
-    </p>
+
+    <div class="drama-info-wrapper">
+      <div class="drama-info-text">
+        <!-- 드라마 기본 정보들 -->
+        <p>
+          <strong>방송사:</strong> {{ drama.channel }}
+        </p>
+        <p>
+          <strong>방영 기간:</strong> {{ drama.start_date }} ~ {{ drama.end_date }}
+        </p>
+        <p><strong>장르:</strong></p>
+
+        {% if drama.description %}
+          <p>{{ drama.description }}</p>
+        {% endif %}
+        <!-- 더 넣을 정보 있다면 여기에 추가 -->
+      </div>
+    
+      {% if drama.img_url %}
+        <div class="drama-info-image">
+          <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
+        </div>
+      {% else %}
+        <div class="drama-info-image">
+          <img src="{% static 'dramas/images/default_thumb.jpg' %}" alt="{{ drama.title }}">
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- {% if drama.img_url %}
+      <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
+    {% else %}
+      <img src="{% static 'dramas/images/default_thumb.jpg' %}" alt="No Image">
+    {% endif %}
+
     {% if drama.description %}
       <p>{{ drama.description }}</p>
-    {% endif %}
+    {% endif %} -->
 
     <hr>
 
@@ -83,9 +81,9 @@
             <ul class="news-list">
               {% for n in ep.drama_news.all %}
                 <li class="news-item">
-                  <strong>{{n.title}} : {{ n.date }} • {{ n.press }}</strong><br>
-                  <a href="{{ n.link }}" target="_blank">{{ n.title }}</a>
-                  {% if n.content %}<p>{{ n.content }}</p>{% endif %}
+                  <a href="{{ n.link }}" target="_blank">{{ n.title }}</a><br>
+                  <strong>- ({{ n.press }}) {{ n.date }}</strong><br>
+                  <!-- {% if n.content %}<p>{{ n.content }}</p>{% endif %} -->
                 </li>
               {% empty %}
                 <li>등록된 뉴스가 없습니다.</li>
