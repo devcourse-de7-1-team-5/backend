@@ -58,15 +58,33 @@ def drama_list_view(request):
     }
     return render(request, 'dramas/drama_list.html', context)
 
-class DramaDetailView(View):
-    def get(self, request, pk):
-        try:
-            res = requests.get(f"http://127.0.0.1:8000/dramas/{pk}", timeout=5)
-            if res.status_code == 404:
-                raise Http404("드라마를 찾을 수 없습니다.")
-            res.raise_for_status()  # 200이 아닌 다른 상태코드일 때 예외 발생
-            data = res.json()
-        except requests.exceptions.RequestException as e:
-            # 네트워크 오류, 타임아웃, 500 등
-            raise Http404("드라마 정보를 불러올 수 없습니다.") from e
-        return render(request, "dramas/drama_detail.html", {"drama": data})
+# class DramaDetailView(View):
+#     def get(self, request, pk):
+#         try:
+#             res = requests.get(f"http://127.0.0.1:8000/api/dramas/{pk}", timeout=5)
+#             if res.status_code == 404:
+#                 raise Http404("드라마를 찾을 수 없습니다.")
+#             res.raise_for_status()  # 200이 아닌 다른 상태코드일 때 예외 발생
+#             data = res.json()
+#         except requests.exceptions.RequestException as e:
+#             # 네트워크 오류, 타임아웃, 500 등
+#             raise Http404("드라마 정보를 불러올 수 없습니다.") from e
+#         return render(request, "dramas/drama_detail.html", {"drama": data})
+    
+# views.py (권장)
+from django.db.models import Prefetch
+
+def drama_detail_view(request, pk):
+    drama = (
+        Drama.objects
+        .prefetch_related(
+            Prefetch(
+                # 'episodeinfo_set',
+                'episodes',
+                queryset=EpisodeInfo.objects.order_by('episode_no')
+                    .prefetch_related('drama_news')
+            )
+        )
+        .get(pk=pk)
+    )
+    return render(request, "dramas/drama_detail.html", {"drama": drama})
