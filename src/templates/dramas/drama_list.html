@@ -31,7 +31,7 @@
         {% if dramas %}
         <section class="drama-grid">
             {% for drama in dramas %}
-            <div class="drama-card" data-year="{{ drama.start_date.year }}">
+            <a href="{% url 'drama-detail' drama.pk %}" class="drama-card" data-year="{{ drama.start_date.year }}">
                 <div class="thumbnail">
                     {% if drama.img_url %}
                         <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
