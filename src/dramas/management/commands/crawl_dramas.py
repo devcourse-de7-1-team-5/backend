@@ -27,7 +27,7 @@ class Command(BaseCommand):
         chrome_options.add_argument('--disable-dev-shm-usage')
         
         service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options) # 옵션 적용
+        driver = webdriver.Chrome(service=service, options=chrome_options) 
 
         # 2. URL 목록 순회
         for url in URLS:
