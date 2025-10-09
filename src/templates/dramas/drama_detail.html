@@ -23,7 +23,16 @@
         <p>
           <strong>방영 기간:</strong> {{ drama.start_date }} ~ {{ drama.end_date }}
         </p>
-        <p><strong>장르:</strong></p>
+        <p class="genre">
+          <strong>장르:</strong>
+            {% if drama.genres.all %}
+                {% for g in drama.genres.all %}
+                    {{ g.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                정보 없음
+            {% endif %}
+        </p>
 
         {% if drama.description %}
           <p>{{ drama.description }}</p>
