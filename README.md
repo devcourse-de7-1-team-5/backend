@@ -32,6 +32,7 @@
 
 ### 크롤링
 
+<div></div>
 <img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt=""/>
 <img src="https://img.shields.io/badge/selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white" alt=""/>
 <img src="https://img.shields.io/badge/beautifulsoup-43B02A?style=for-the-badge&logoColor=white" alt=""/>
@@ -39,23 +40,28 @@
 
 ### 백엔드
 
-<img src="https://img.shields.io/badge/django-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/django_ORM-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt=""/>
+<div>
+    <img src="https://img.shields.io/badge/django-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/django_ORM-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt=""/>
+</div>
 
 ### 시각화
 
 [//]: # (<img src="https://img.shields.io/badge/matplotlib-11557C?style=for-the-badge&logo=matplotlib&logoColor=white" alt=""/>)
-<img src="https://img.shields.io/badge/django_Templates-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/chart.js-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/css-663399?style=for-the-badge&&logo=css&logoColor=white" alt=""/>
+<div>
+    <img src="https://img.shields.io/badge/django_Templates-092E20?style=for-the-badge&logo=Django&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/chart.js-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/css-663399?style=for-the-badge&&logo=css&logoColor=white" alt=""/>
+</div>
 
 ### 인프라
-
-<img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&&logo=git&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/git_flow-F05032?style=for-the-badge&&logo=git&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&&logo=githubactions&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/uv-DE5FE9?style=for-the-badge&&logo=uv&logoColor=white" alt=""/>
+<div>
+    <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&&logo=git&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/git_flow-F05032?style=for-the-badge&&logo=git&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&&logo=githubactions&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/uv-DE5FE9?style=for-the-badge&&logo=uv&logoColor=white" alt=""/>
+</div>
 
 ### 주요 목표
 - **데이터 기반 순위 산정**: 흩어져 있는 드라마 관련 데이터를 종합하여 객관적인 인기 순위를 제공합니다.
