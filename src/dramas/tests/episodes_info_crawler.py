@@ -1,9 +1,3 @@
-# import os
-# import django
-
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")  # 프로젝트에 맞게
-# django.setup()
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -19,31 +13,9 @@ from urllib.parse import quote_plus
 
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-# from todo.models import Drama
-
-def parse_dates_and_eps(text: str):
-    """
-    '2024.03.09. ~ 2024.04.28.' 같은 문자열에서
-    시작일, 종료일을 추출 (문자열 그대로 반환)
-    """
-    # ~, –, -, ~ 사이 공백 등 다양한 구분자 수용
-    # 날짜 표기: 2024.03.09. / 2024.3.9 / 2024-03-09 등 변형 수용
-    date_pattern = r"(\d{4}[.\-\/]\s*\d{1,2}[.\-\/]\s*\d{1,2}\.?)"
-    # 시작일 ~ 종료일 캡처
-    m = re.search(date_pattern + r"\s*[~\-–]\s*" + date_pattern, text)
-    if m:
-        start_raw = re.sub(r"\s+", "", m.group(1))  # 공백 제거
-        end_raw   = re.sub(r"\s+", "", m.group(2))
-        # 끝의 마침표는 보기 좋게 제거
-        start_raw = start_raw.rstrip(".")
-        end_raw   = end_raw.rstrip(".")
-        return start_raw, end_raw
-    return None, None
-
-def extract_drama_meta_from_result_page(driver, timeout=10):
+def extract_drama_meta_from_result_page(driver, timeout=3):
     """
     네이버 검색 결과 페이지에서
-    - 방영 시작/종료일
     - 총 부작 수
     를 추출하여 dict로 반환
     """
@@ -67,7 +39,7 @@ def extract_drama_meta_from_result_page(driver, timeout=10):
             continue
 
     if container is None:
-        return {"방영시작일": None, "방영종료일": None, "총부작": None, "원문": None}
+        return {"총부작": None, "원문": None}
 
     # 2) 총 부작 수
     # em.state 안의 "16부작"에서 숫자만 추출
@@ -81,20 +53,8 @@ def extract_drama_meta_from_result_page(driver, timeout=10):
     eps_match = re.search(r"(\d+)\s*부작", eps_text)
     total_eps = int(eps_match.group(1)) if eps_match else None
 
-    # 3) 방영기간(시작/종료일)
-    # container의 전체 텍스트에서 날짜 구간 추출 (부작 텍스트는 제거)
-    whole_text = container.get_attribute("textContent") or container.text
-    whole_text = whole_text.replace(eps_text, " ")
-    whole_text = re.sub(r"\s+", " ", whole_text).strip()
-
-    start_date, end_date = parse_dates_and_eps(whole_text)
-
-    return {
-        "방영시작일": start_date,     # 예: '2024.03.09'
-        "방영종료일": end_date,       # 예: '2024.04.28'
-        "총부작": total_eps,          # 예: 16 (int)
-        "원문": whole_text            # 디버깅용 원문 텍스트
-    }
+   
+    return { "총부작": total_eps }
 
 # === 사용 예시 ===
 # (전 단계에서 이미 네이버 검색 결과 페이지로 이동해 있다고 가정)
@@ -111,7 +71,6 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
 
     def _try_with_suffix(suffix: str):
         query = f"{drama_title} {episode_no}{suffix}"
-        # url = f"https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query={quote_plus(query)}"
         url = f"https://search.naver.com/search.naver?query={quote_plus(query)}"
         driver.get(url)
 
@@ -142,16 +101,6 @@ def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, t
         except NoSuchElementException:
             rating = None
         
-        # # --- 줄거리 ---
-        # # 줄거리 텍스트 영역 (span.desc._text). '펼쳐보기' 버튼이 있으면 먼저 클릭
-        # try:
-        #     more_btn = module.find_element(By.XPATH, ".//button[contains(@class,'story_more')]")
-        #     if more_btn.is_displayed():
-        #         driver.execute_script("arguments[0].click();", more_btn)
-        #         time.sleep(0.2)
-        # except Exception:
-        #     pass
-
         try:
             syn_el = module.find_element(
             By.XPATH,
@@ -202,8 +151,8 @@ def get_all_episode_info(drama_title: str):
 
     # 크롬 옵션 설정
     options = Options()
-    options.add_argument("--start-maximized")   # 브라우저 창 최대화
-    # options.add_argument("--headless=new")    # 창을 안 띄우고 싶으면 주석 해제
+    # options.add_argument("--start-maximized")   # 브라우저 창 최대화
+    options.add_argument("--headless=new")    # 창을 안 띄우고 싶으면 주석 해제
 
     # Selenium Manager 사용 → Service 지정 필요 없음
     driver = webdriver.Chrome(options=options)
@@ -240,8 +189,9 @@ def get_all_episode_info(drama_title: str):
 
     for i in range(1,num_episodes+1):
         res = get_episode_rating_and_synopsis(driver, drama_title, i)
-        # print(res)
-        # print(drama_title + " ",num_episodes)
+        
+        if all(value is None for value in res.values()):
+            return []
         episodes_list.append(res)
 
     driver.quit()
