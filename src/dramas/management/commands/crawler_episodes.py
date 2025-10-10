@@ -9,8 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS("드라마 회차별 정보 크롤링!"))
 
-        # titles = list(Drama.objects.values_list('title', flat=True))
-        
         for drama in Drama.objects.all():
             print("="*10 + drama.title + "="*10)
             episodes_list = get_all_episode_info(drama.title)
