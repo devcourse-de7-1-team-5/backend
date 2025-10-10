@@ -196,7 +196,25 @@ def dashboard_metrics(request):
 
 
 def drama_detail_view(request, pk):
+    order_by = request.GET.get('order_by', 'episode_no')
+
+    if order_by not in ['episode_no', '-episode_no', 'news_count',
+                        '-news_count',
+                        'rating', '-rating']:
+        order_by = 'episode_no'  # fallback
+
+    episodes_qs = (
+        EpisodeInfo.objects
+        .annotate(news_count=Count('drama_news'))
+        .order_by(order_by)
+    )
     drama = Drama.objects.prefetch_related(
-        Prefetch('episodes', queryset=EpisodeInfo.objects.order_by('episode_no'))
+        Prefetch('episodes', queryset=episodes_qs)
     ).get(pk=pk)
-    return render(request, "dramas/drama_detail.html", {"drama": drama})
+
+    return render(request,
+                  template_name="dramas/drama_detail.html",
+                  context={
+                      "drama": drama,
+                      "current_order": order_by
+                  })

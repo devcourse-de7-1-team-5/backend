@@ -50,10 +50,14 @@
             <ul class="ranking-list">
                 {% if top_10_dramas %}
                     {% for drama in top_10_dramas %}
-                        <li class="ranking-item">
+                      <li class="ranking-item">
                             <span class="rank-number">{{ forloop.counter }}</span>
                             <span class="rank-info">
+                              <a href="{% url 'drama-detail' drama.id %}"
+                                 style="text-decoration: none !important;">
                                 <span class="rank-title">{{ drama.title }}</span>
+                              </a>
+
                             </span>
                             <span class="rank-rating">{{ drama.ranking_score|floatformat:1 }}</span>
                         </li>
