@@ -20,6 +20,7 @@ class Command(BaseCommand):
 
     async def main(self):
         dramas = await self.get_dramas_with_episodes_async()
+        self.stdout.write(f"총 {len(dramas)}개의 드라마에 대해 뉴스 크롤링을 수행합니다.\n")
         completed, failed = await self.crawl_all_dramas(dramas)
 
         self.stdout.write("-" * 50)
@@ -30,6 +31,10 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR(f"  ❌ {drama.title} 실패: {error}"))
         self.stdout.write("-" * 50)
+        self.stdout.write(
+            f"총 {len(completed)}개 드라마 뉴스 크롤링 성공, {len(failed)}개 드라마 뉴스 크롤링 실패"
+        )
+
 
     async def crawl_all_dramas(self, dramas):
         """모든 드라마 크롤링을 병렬 수행"""

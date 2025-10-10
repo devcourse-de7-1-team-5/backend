@@ -15,10 +15,7 @@ body {
 header {
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    padding: 20px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 20px;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -27,12 +24,67 @@ header {
 header h1 {
     font-size: 1.8rem;
     color: #222;
-    margin: 0;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    justify-content: space-between;
 }
 
 .filters {
     display: flex;
     gap: 12px;
+}
+
+.search-box {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-box input[type="text"] {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    flex-grow: 1;
+}
+
+.search-btn, .reset-btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.search-btn {
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+}
+
+.search-btn:hover {
+    background-color: #357ABD;
+}
+
+.reset-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1;
+}
+
+.reset-btn:hover {
+    background-color: #e0e0e0;
 }
 
 select {
@@ -42,7 +94,6 @@ select {
     font-size: 15px;
     background-color: #f9f9f9;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 select:hover {
@@ -50,7 +101,7 @@ select:hover {
 }
 
 /* -----------------------------
-드라마 카드 그리드
+랭킹 섹션 (차트 + 목록)
 ------------------------------ */
 main {
     max-width: 1200px;
@@ -58,6 +109,98 @@ main {
     padding: 0 20px;
 }
 
+.ranking-section {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    flex-wrap: wrap;
+}
+
+.ranking-chart-container {
+    width: 100%;
+    max-width: 800px;
+    height: 350px;  
+    margin: auto;
+}
+#rankingChart {
+    width: 100%;
+    height: 100%;
+}
+
+
+.ranking-chart-container h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.ranking-list-container {
+    flex: 1;
+}
+
+.ranking-list-container h3 {
+    font-size: 1.3rem;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 15px;
+}
+
+.ranking-item:last-child {
+    border-bottom: none;
+}
+
+.rank-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4A90E2;
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.rank-info {
+    flex-grow: 1;
+    margin-left: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.rank-title {
+    font-weight: 600;
+}
+
+.rank-rating {
+    font-weight: bold;
+    color: #D0021B;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+/* -----------------------------
+드라마 카드 그리드
+------------------------------ */
 .drama-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -70,6 +213,8 @@ main {
     overflow: hidden;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
 }
 
 .drama-card:hover {
@@ -93,38 +238,65 @@ main {
     padding: 15px 18px;
 }
 
-.title {
+.drama-info h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
     font-size: 1.2rem;
-    font-weight: 700;
-    margin: 5px 0;
-    color: #111;
+    color: #222;
 }
 
-.channel {
-    font-size: 0.95rem;
-    color: #0073e6;
-    margin: 3px 0;
-}
-
-.period {
-    font-size: 0.85rem;
-    color: #666;
+.drama-info .meta {
+    font-size: 0.9em;
+    color: #999;
+    margin-top: 0;
     margin-bottom: 8px;
 }
 
-.desc {
-    font-size: 0.9rem;
-    color: #444;
-    line-height: 1.5;
-    word-break: keep-all;
+.drama-info .rating-info,
+.drama-info .news-info {
+    font-size: 0.9em;
+    color: #555;
+    margin: 3px 0;
+    font-weight: 500;
+}
+
+.genres {
+    margin-top: 10px;
+}
+
+.genre-tag {
+    display: inline-block;
+    background-color: #E0F2F7;
+    color: #007bff;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    margin-right: 5px;
+    margin-bottom: 5px;
 }
 
 /* -----------------------------
-빈 데이터 문구
+모바일 반응형
 ------------------------------ */
-.empty {
-    text-align: center;
-    color: #777;
-    padding: 50px;
-    font-size: 1.2rem;
+@media (max-width: 800px) {
+    .ranking-section {
+        flex-direction: column;
+    }
+    .ranking-chart-container {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 600px) {
+    header {
+        padding: 15px;
+    }
+    .filter-form {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .filters, .search-box {
+        width: 100%;
+    }
 }
