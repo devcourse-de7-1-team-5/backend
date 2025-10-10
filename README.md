@@ -32,11 +32,12 @@
 
 ### 크롤링
 
-<div></div>
+<div>
 <img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt=""/>
 <img src="https://img.shields.io/badge/selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white" alt=""/>
 <img src="https://img.shields.io/badge/beautifulsoup-43B02A?style=for-the-badge&logoColor=white" alt=""/>
 <img src="https://img.shields.io/badge/httpx-3776AB?style=for-the-badge&logoColor=white" alt=""/>
+</div>
 
 ### 백엔드
 
