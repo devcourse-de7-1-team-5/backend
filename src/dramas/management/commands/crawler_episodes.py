@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from dramas.models import EpisodeInfo,Drama
-from dramas.tests.episodes_info_crawler import get_all_episode_info
+from dramas.episodes_info_crawler import get_all_episode_info
 
 
 class Command(BaseCommand):

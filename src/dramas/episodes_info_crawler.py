@@ -48,7 +48,7 @@ def extract_drama_meta_from_result_page(driver, timeout=3):
     
     return { "총부작": total_eps }
 
-def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, timeout: int = 10):
+def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, timeout: int = 3):
     # 네이버에서 `<드라마 제목> <n화>`를 검색해, '방송 에피소드' 모듈에서 시청률과 줄거리를 추출합니다.
 
     wait = WebDriverWait(driver, timeout)
