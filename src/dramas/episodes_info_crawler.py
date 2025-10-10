@@ -14,19 +14,13 @@ from urllib.parse import quote_plus
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 def extract_drama_meta_from_result_page(driver, timeout=3):
-    """
-    네이버 검색 결과 페이지에서
-    - 총 부작 수
-    를 추출하여 dict로 반환
-    """
+    # 드라마 총 회차 정보 추출
     wait = WebDriverWait(driver, timeout)
 
     # 1) span.text 안에 em.state(부작)가 함께 있는 블록을 우선 탐색
     selectors = [
         "//span[contains(@class,'text')][.//em[contains(@class,'state') and contains(.,'부작')]]",
-        # 백업: 정보패널 내 유사 텍스트 블록
         "//*[@class][contains(.,'부작') and .//em[contains(@class,'state')]]",
-        # 최후: '부작'을 담은 em.state를 직접 찾고 상위 텍스트에서 날짜 뽑기
         "//em[contains(@class,'state') and contains(.,'부작')]",
     ]
 
@@ -42,31 +36,21 @@ def extract_drama_meta_from_result_page(driver, timeout=3):
         return {"총부작": None, "원문": None}
 
     # 2) 총 부작 수
-    # em.state 안의 "16부작"에서 숫자만 추출
     try:
         em = container.find_element(By.XPATH, ".//em[contains(@class,'state') and contains(.,'부작')]")
         eps_text = em.text.strip()
     except Exception:
-        # 백업: 현재 요소 자체가 em일 수도 있으므로
         eps_text = container.text.strip()
 
     eps_match = re.search(r"(\d+)\s*부작", eps_text)
     total_eps = int(eps_match.group(1)) if eps_match else None
 
-   
+    
     return { "총부작": total_eps }
 
-# === 사용 예시 ===
-# (전 단계에서 이미 네이버 검색 결과 페이지로 이동해 있다고 가정)
-# meta = extract_drama_meta_from_result_page(driver)
-# print(meta)
-
 def get_episode_rating_and_synopsis(driver, drama_title: str, episode_no: int, timeout: int = 10):
+    # 네이버에서 `<드라마 제목> <n화>`를 검색해, '방송 에피소드' 모듈에서 시청률과 줄거리를 추출합니다.
 
-    """
-    네이버에서 `<드라마 제목> <n화>`를 검색해,
-    '방송 에피소드' 모듈에서 시청률과 줄거리를 추출합니다.
-    """
     wait = WebDriverWait(driver, timeout)
 
     def _try_with_suffix(suffix: str):
