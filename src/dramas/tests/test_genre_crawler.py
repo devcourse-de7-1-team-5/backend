@@ -12,4 +12,5 @@ class WikiCrawlerIntegrationTest(TestCase):
         # 반환값 검증
         self.assertIsInstance(genres, list)
         self.assertGreater(len(genres), 0)  # 장르가 하나 이상 존재해야 함
+        self.assertIsInstance(genres if genres is not None else [], list)
         print(f"{drama_title} 장르: {genres}")
