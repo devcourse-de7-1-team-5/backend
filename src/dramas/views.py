@@ -1,18 +1,26 @@
-from rest_framework import generics
-from django.db.models import Max, Value, FloatField, Count, ExpressionWrapper, F
-from django.db.models.functions import ExtractYear, Coalesce
-from django.db.models import Prefetch
-from django.shortcuts import render
-from datetime import date
+import io
 import json
+from datetime import date
+
+from django.core.management import call_command
+from django.db.models import Avg, Count
+from django.db.models import Max, Value, FloatField, ExpressionWrapper, F
+from django.db.models import Prefetch
+from django.db.models.functions import ExtractYear, Coalesce
+from django.http import JsonResponse
+from django.shortcuts import render
+from rest_framework import generics
 
 from dramas.serializers import DramaListSerializer, DramaDetailSerializer
+from news.models import News
 from .models import Drama, EpisodeInfo
+
 
 # --- REST API ---
 class DramaList(generics.ListCreateAPIView):
     queryset = Drama.objects.all()
     serializer_class = DramaListSerializer
+
 
 class DramaDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Drama.objects.all()
@@ -117,6 +125,74 @@ def drama_list_view(request):
     }
 
     return render(request, 'dramas/drama_list.html', context)
+
+def check_data_status(request):
+    """
+    드라마 데이터 존재 여부를 확인
+    """
+    data_exists = Drama.objects.exists() and EpisodeInfo.objects.exists()
+    return JsonResponse({'data_exists': data_exists})
+
+
+def setup_data(request):
+    """
+    'setup_data' 명령어를 실행하여 초기 데이터를 설정
+    """
+    try:
+        out = io.StringIO()
+        call_command('setup_data', stdout=out)
+        return JsonResponse(
+            {'status': 'success', 'message': 'Data setup complete.'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+def dashboard_metrics(request):
+    """
+    대시보드에 필요한 지표 데이터를 반환
+    """
+    # 시청률 상위 5개 드라마
+    top_rated_dramas = Drama.objects.annotate(
+        avg_rating=Avg('episodes__rating')
+    ).order_by('-avg_rating').filter(avg_rating__isnull=False)[:5]
+
+    top_rated_data = [{
+        'id': drama.id,
+        'title': drama.title,
+        'avg_rating': round(drama.avg_rating, 2)
+    } for drama in top_rated_dramas]
+
+    # 가장 많이 언급된 드라마
+    most_mentioned_query_result = News.objects.values(
+        'drama_ep__drama__title'
+    ).annotate(
+        mention_count=Count('id')
+    ).order_by('-mention_count').first()
+
+    most_mentioned_drama_data = None
+    if most_mentioned_query_result:
+        most_mentioned_drama_data = {
+            'drama__title': most_mentioned_query_result[
+                'drama_ep__drama__title'],
+            'mention_count': most_mentioned_query_result['mention_count']
+        }
+
+    return JsonResponse({
+        'top_rated_dramas': top_rated_data,
+        'most_mentioned_drama': most_mentioned_drama_data
+    })
+# class DramaDetailView(View):
+#     def get(self, request, pk):
+#         try:
+#             res = requests.get(f"http://127.0.0.1:8000/api/dramas/{pk}", timeout=5)
+#             if res.status_code == 404:
+#                 raise Http404("드라마를 찾을 수 없습니다.")
+#             res.raise_for_status()  # 200이 아닌 다른 상태코드일 때 예외 발생
+#             data = res.json()
+#         except requests.exceptions.RequestException as e:
+#             # 네트워크 오류, 타임아웃, 500 등
+#             raise Http404("드라마 정보를 불러올 수 없습니다.") from e
+#         return render(request, "dramas/drama_detail.html", {"drama": data})
 
 
 def drama_detail_view(request, pk):
