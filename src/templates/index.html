@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>드라마 대시보드</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --background-color: #f4f6f8;
+      --card-bg-color: #ffffff;
+      --text-color: #333;
+      --light-text-color: #888;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* 로딩 컨테이너 */
+    #loading-container {
+      text-align: center;
+    }
+
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: var(--primary-color);
+      animation: spin 1s ease infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #loading-container h2 {
+      color: var(--secondary-color);
+    }
+
+    /* 대시보드 컨테이너 */
+    #dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      background-color: var(--card-bg-color);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 1.5rem;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--background-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* 시청률 랭킹 */
+    #top-rated-dramas-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #top-rated-dramas-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    #top-rated-dramas-list li:last-child {
+      border-bottom: none;
+    }
+
+    .drama-title {
+      font-weight: bold;
+    }
+
+    .drama-rating {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .drama-rank {
+      font-weight: bold;
+      color: var(--secondary-color);
+      margin-right: 1rem;
+    }
+
+    /* 가장 많이 언급된 드라마 */
+    #most-mentioned-drama-card .mention-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--secondary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    #most-mentioned-drama-card .mention-count {
+      font-size: 1.2rem;
+      color: var(--light-text-color);
+    }
+    
+    /* 드라마 목록 바로가기 버튼 */
+    #actions-container {
+        margin-top: 2rem;
+        text-align: center;
+    }
+
+    .action-button {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+
+    .action-button:hover {
+        background-color: #2980b9;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 데이터 로딩 시 보여질 화면 -->
+  <div id="loading-container" style="display: none;">
+    <div class="spinner"></div>
+    <h2>초기 드라마 데이터를 설정하고 있습니다.</h2>
+    <p>완료되면 자동으로 새로고침됩니다. 잠시만 기다려주세요...</p>
+  </div>
+
+  <!-- 데이터 존재 시 보여질 대시보드 -->
+  <div id="dashboard-container" style="display: none;">
+    <div class="card">
+      <h2>📈 시청률 랭킹 TOP 5</h2>
+      <ul id="top-rated-dramas-list"></ul>
+    </div>
+    <div class="card" id="most-mentioned-drama-card">
+      <h2>💬 가장 많이 언급된 드라마</h2>
+      <div id="most-mentioned-drama-content"></div>
+    </div>
+  </div>
+  
+  <!-- 드라마 목록 바로가기 -->
+  <div id="actions-container" style="display: none;">
+      <a href="/dramas" class="action-button">전체 드라마 목록 보러가기</a>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const loadingContainer = document.getElementById('loading-container');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const actionsContainer = document.getElementById('actions-container');
+
+    const renderTopRated = (dramas) => {
+      const list = document.getElementById('top-rated-dramas-list');
+      if (!dramas || dramas.length === 0) {
+        list.innerHTML = '<li>데이터가 없습니다.</li>';
+        return;
+      }
+      list.innerHTML = dramas.map((drama, index) => `
+        <li>
+          <div>
+            <span class="drama-rank">#${index + 1}</span>
+            <span class="drama-title">${drama.title}</span>
+          </div>
+          <span class="drama-rating">⭐️ ${drama.avg_rating}</span>
+        </li>
+      `).join('');
+    };
+
+    const renderMostMentioned = (drama) => {
+      const content = document.getElementById('most-mentioned-drama-content');
+      if (!drama) {
+        content.innerHTML = '<p>데이터가 없습니다.</p>';
+        return;
+      }
+      content.innerHTML = `
+        <p class="mention-title">${drama.drama__title}</p>
+        <p class="mention-count">총 ${drama.mention_count}회 언급</p>
+      `;
+    };
+
+    try {
+      const statusResponse = await fetch('/dramas/check_data_status/');
+      const status = await statusResponse.json();
+
+      if (status.data_exists) {
+        // 데이터가 있으면 대시보드 표시
+        dashboardContainer.style.display = 'grid';
+        actionsContainer.style.display = 'block';
+        
+        const metricsResponse = await fetch('/dramas/api/dashboard_metrics/');
+        const metrics = await metricsResponse.json();
+        
+        renderTopRated(metrics.top_rated_dramas);
+        renderMostMentioned(metrics.most_mentioned_drama);
+
+      } else {
+        // 데이터가 없으면 로딩 화면 표시 및 데이터 설정 요청
+        loadingContainer.style.display = 'block';
+        
+        await fetch('/dramas/setup_data/');
+        // 데이터 설정이 완료되면 페이지 새로고침
+        location.reload();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      loadingContainer.style.display = 'block';
+      loadingContainer.innerHTML = '<h2>오류가 발생했습니다.</h2><p>콘솔을 확인해주세요.</p>';
+    }
+  });
+</script>
+
+</body>
+</html>

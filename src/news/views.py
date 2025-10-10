@@ -66,6 +66,7 @@ async def crawl_all_dramas(dramas):
 
 async def crawl_single_drama(drama):
     """한 드라마의 뉴스를 크롤링하고 DB에 저장 후, 뉴스 개수를 반환"""
+    print("start:", drama.title)
     episode_periods = await get_episode_periods_async(drama)
 
     crawler = NaverNewsCrawler(
@@ -98,6 +99,8 @@ async def crawl_single_drama(drama):
 
     if news_models:
         await bulk_create_news_async(news_models)
+
+    print("completed:", drama.title, len(news_models))
 
     return len(news_models)
 
