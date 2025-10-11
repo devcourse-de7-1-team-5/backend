@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ drama.title }}</title>
+  <link rel="stylesheet" href="{% static 'dramas/drama_detail.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .sort-links {
+      margin-bottom: 20px;
+    }
+
+    .sort-btn {
+      display: inline-block;
+      padding: 5px 12px;
+      margin-right: 10px;
+      text-decoration: none;
+      color: #333;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+
+    .sort-btn:hover {
+      background-color: #ddd;
+    }
+
+    .sort-btn.active {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      border: 1px solid #0056b3;
+    }
+
+    .episode-item {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .highlight {
+      background-color: rgba(255, 255, 0, 0.3);
+      transition: background-color 0.5s;
+    }
+  </style>
+</head>
+<body>
+<div class="container" style="width: 100%;">
+  <h1><a href="/dramas">드라마</a> / {{ drama.title }}</h1>
+
+  <!-- 드라마 기본 정보 -->
+  <div
+      style=" display: flex; flex-flow: row nowrap; justify-content: space-between; align-items: flex-start;">
+    <div
+        style="display: flex; flex-flow: column nowrap; justify-content: flex-start; align-items: center;">
+
+      <div>
+      {% if drama.img_url %}
+        <img src="{{ drama.img_url }}" alt="{{ drama.title }}"
+             style="max-width: 300px; height: auto;">
+      {% else %}
+        <img src="{% static 'dramas/images/default_thumb.jpg' %}" alt="{{ drama.title }}">
+      {% endif %}
+    </div>
+      <div
+          style="display: flex; flex-flow: column nowrap; justify-content: space-between; align-items: flex-start;">
+        <div>
+
+          <p><strong>방송사:</strong> {{ drama.channel }}</p>
+          <p><strong>방영 기간</strong></p>
+          <p>{{ drama.start_date }} ~ {{ drama.end_date }}</p>
+        </div>
+        <p class="genre">
+          <strong>장르:</strong>
+        <div style="display: flex; flex-flow: row wrap">
+
+          {% if drama.genres.all %}
+            {% for g in drama.genres.all %}
+              <button
+                  onClick="window.location='{% url 'drama-list' %}?genre={{ g.name }}';"
+                  style="margin: 2px; padding: 5px 10px; border: none; background-color: #e0e0e0; border-radius: 5px; cursor: pointer;">
+
+
+                {{ g.name }}{% if not forloop.last %}{% endif %}
+              </button>
+
+            {% endfor %}
+          {% else %} 정보 없음 {% endif %}
+        </div>
+        </p>
+
+      </div>
+    </div>
+    <div
+        style=" display: flex ; flex-flow: column nowrap; justify-content: flex-start; align-items: flex-start; flex-grow: 1">
+      <h2>시청률 / 뉴스 수 그래프</h2>
+      <canvas id="ratingChart" width="520px" height="300px" style="flex: 1 1 auto"></canvas>
+    </div>
+  </div>
+  {% if drama.description %}<p>{{ drama.description }}</p>{% endif %}
+  <hr>
+  <div class="sort-links">
+    <a href="?order_by=episode_no"
+       class="sort-btn {% if current_order == 'episode_no' %}active{% endif %}">회차 오름차순</a>
+    <a href="?order_by=-rating"
+       class="sort-btn {% if current_order == '-rating' %}active{% endif %}">시청률 높은 순</a>
+    <a href="?order_by=-news_count"
+       class="sort-btn {% if current_order == '-news_count' %}active{% endif %}">뉴스 많은 순</a>
+  </div>
+  <!-- 에피소드 목록 -->
+  <h2>에피소드 목록</h2>
+  {% if drama.episodes %}
+    <ul class="episode-list">
+      {% for ep in drama.episodes.all %}
+        <li class="episode-item" id="episode-{{ ep.episode_no }}">
+          <h3>{{ ep.episode_no }}회 ({{ ep.date }})</h3>
+          <p><strong>시청률:</strong> {{ ep.rating }}%</p>
+          <p>{{ ep.synopsis }}</p>
+          <p>🔗 <a href="{{ ep.source_url }}" target="_blank">네이버 검색 결과 보기</a></p>
+
+          <details class="news-block">
+            <summary>더보기 (뉴스 {{ ep.drama_news.count }}건)</summary>
+            <ul class="news-list">
+              {% for n in ep.drama_news.all %}
+                <li class="news-item">
+                  <a href="{{ n.link }}" target="_blank">{{ n.title }}</a><br>
+                  <strong>- ({{ n.press }}) {{ n.date }}</strong>
+                </li>
+              {% empty %}
+                <li>등록된 뉴스가 없습니다.</li>
+              {% endfor %}
+            </ul>
+          </details>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>등록된 에피소드가 없습니다.</p>
+  {% endif %}
+</div>
+
+<script>
+  // X축: 항상 회차 순
+  const episodeNos = [{% for ep in drama.episodes.all|dictsort:"episode_no" %}{{ ep.episode_no }},
+    {% endfor %}];
+  const airingDates = [{% for ep in drama.episodes.all|dictsort:"episode_no" %}'{{ ep.date }}',
+  {% endfor %}];
+
+  // 정렬 기준에 따라 Y축 값 배열 생성
+  const ratingsMap = {};
+  const newsMap = {};
+  {% for ep in drama.episodes.all %}
+    ratingsMap[{{ ep.episode_no }}] = {{ ep.rating|default:0 }};
+    newsMap[{{ ep.episode_no }}] = {{ ep.news_count|default:0 }};
+  {% endfor %}
+
+  // Y축 데이터: X축 회차 순서에 맞춰서 매핑
+  const ratings = episodeNos.map(no => ratingsMap[no]);
+  const newsCounts = episodeNos.map(no => newsMap[no]);
+
+  const ctx = document.getElementById('ratingChart').getContext('2d');
+
+  const ratingChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: episodeNos.map(no => no + '회'),
+      datasets: [
+        {
+          label: '시청률 (%)',
+          data: ratings,
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0, 0, 255, 0.2)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          yAxisID: 'yRatings'
+        },
+        {
+          label: '뉴스 수',
+          data: newsCounts,
+          borderColor: 'orange',
+          backgroundColor: 'rgba(255, 165, 0, 0.2)',
+          fill: false,
+          tension: 0.3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          yAxisID: 'yNews'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const index = context.dataIndex;
+              const epNo = episodeNos[index];
+              const date = airingDates[index];
+              const val = context.dataset.data[index];
+              if (context.dataset.label === '시청률 (%)') {
+                return `시청률: ${val}% (${epNo}회, ${date})`;
+              } else {
+                return `뉴스 수: ${val} (${epNo}회, ${date})`;
+              }
+            }
+          }
+        }
+      },
+      interaction: {mode: 'index', intersect: false},
+      onClick: (evt, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          const epNo = episodeNos[index];
+          const el = document.getElementById('episode-' + epNo);
+          if (el) {
+            el.scrollIntoView({behavior: 'smooth'});
+            el.classList.add('highlight');
+            setTimeout(() => {
+              el.classList.remove('highlight');
+            }, 1000);
+          }
+        }
+      },
+      scales: {
+        yRatings: {
+          type: 'linear',
+          position: 'left',
+          beginAtZero: true,
+          title: {display: true, text: '시청률 (%)'}
+        },
+        yNews: {
+          type: 'linear',
+          position: 'right',
+          beginAtZero: true,
+          grid: {drawOnChartArea: false},
+          title: {display: true, text: '뉴스 수'}
+        },
+        x: {
+          title: {display: true, text: '회차'}
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>

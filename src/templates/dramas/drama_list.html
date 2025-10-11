@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드라마 분석 목록</title>
+    <link rel="stylesheet" href="{% static 'dramas/drama_dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>📺 드라마 트렌드 한눈에 보기</h1>
+
+    <header>
+        <form action="{% url 'drama-list-page' %}" method="GET" class="filter-form">
+            <div class="filters">
+                <select name="year">
+                    <option value="all">전체 연도</option>
+                    {% for year in year_list %}
+                        <option value="{{ year }}" {% if selected_year|stringformat:"s" == year|stringformat:"s" %}selected{% endif %}>{{ year }}년</option>
+                    {% endfor %}
+                </select>
+
+                <select name="genre">
+                    <option value="all">전체 장르</option>
+                    {% for genre in genre_list %}
+                        <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="search-box">
+                <input type="text" name="query" placeholder="드라마 제목 검색" value="{{ search_query }}">
+                <button type="submit">검색</button>
+            </div>
+        </form>
+    </header>
+
+    <main>
+        <!-- 순위 섹션 -->
+        <section class="ranking-section">
+            <div class="ranking-chart-container">
+                <h2>{{ ranking_title }}</h2>
+                <canvas id="rankingChart"></canvas>
+            </div>
+
+            <div class="ranking-list-container">
+            <h3>TOP 10</h3>
+            <ul class="ranking-list">
+                {% if top_10_dramas %}
+                    {% for drama in top_10_dramas %}
+                      <li class="ranking-item">
+                            <span class="rank-number">{{ forloop.counter }}</span>
+                            <span class="rank-info">
+                              <a href="{% url 'drama-detail' drama.id %}"
+                                 style="text-decoration: none !important;">
+                                <span class="rank-title">{{ drama.title }}</span>
+                              </a>
+
+                            </span>
+                            <span class="rank-rating">{{ drama.ranking_score|floatformat:1 }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li>순위 데이터가 없습니다.</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        </section>
+
+        <!-- 드라마 목록 -->
+        <section class="drama-list-section">
+            {% if dramas %}
+                <div class="drama-grid">
+                    {% for drama in dramas %}
+                        <a href="{% url 'drama-detail' drama.id %}" class="drama-card">
+                            <div class="thumbnail">
+                                {% if drama.img_url %}
+                                    <img src="{{ drama.img_url }}" alt="{{ drama.title }}">
+                                {% else %}
+                                    <img src="{% static 'dramas/images/default_poster.jpg' %}" alt="포스터 없음">
+                                {% endif %}
+                            </div>
+                            <div class="drama-info">
+                                <h3>{{ drama.title }}</h3>
+                                <p>{{ drama.channel }} | {{ drama.start_date.year }}</p>
+                                <p>최고 시청률: {{ drama.max_rating|floatformat:2 }}%</p>
+                                <p>뉴스 기사 수: {{ drama.news_count }}</p>
+                                <div class="genres">
+                                    {% for genre in drama.genres.all %}
+                                        <span class="genre-tag">{{ genre.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>조건에 맞는 드라마가 없습니다.</p>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chartData = JSON.parse('{{ chart_data_json|escapejs }}');
+    const rankingTitle = '{{ ranking_title|escapejs }}';
+
+    if (chartData.length > 0) {
+        const labels = chartData.map(d => d.title);
+        const scores = chartData.map(d => d.score || 0);
+
+        const ctx = document.getElementById('rankingChart');
+        ctx.style.height = '400px';
+        ctx.style.width = '100%';
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '종합 점수',
+                    data: scores,
+                    backgroundColor: 'rgba(54,162,235,0.7)',
+                    borderColor: 'rgba(54,162,235,1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: rankingTitle, font: { size: 16 } },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: '종합 점수 (시청률/뉴스)' } },
+                    y: { title: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>

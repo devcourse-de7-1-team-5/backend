@@ -1,0 +1,67 @@
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+h1 {
+    color: #333;
+}
+.episode-list {
+    list-style: none;
+    padding: 0;
+}
+.episode-item {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+.episode-item h3 {
+    margin-top: 0;
+}
+.episode-item a {
+    color: #007bff;
+    text-decoration: none;
+}
+.episode-item a:hover {
+    text-decoration: underline;
+}
+
+
+.drama-info-wrapper {
+  width: 100%;          /* ← 전체 가로폭 채우기 */
+  max-width: none;      /* ← 최대폭 제한 없애기 */
+  margin: 0;            /* ← 가운데 정렬용 마진 제거 */
+  padding: 16px;        /* ← 좌우 여백(선택) */
+  box-sizing: border-box;
+
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* 왼쪽 텍스트는 남는 공간 모두 차지 */
+.drama-info-text {
+  flex: 1 1 auto;
+}
+
+
+.drama-info-image img {
+  width: 100%;
+  height: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .drama-info-wrapper {
+    flex-direction: column;
+  }
+  .drama-info-image {
+    flex: 0 0 auto;
+  }
+}

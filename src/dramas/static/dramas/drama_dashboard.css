@@ -1,0 +1,302 @@
+/* -----------------------------
+기본 설정
+------------------------------ */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* -----------------------------
+헤더 (타이틀 + 필터)
+------------------------------ */
+header {
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: #222;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.filters {
+    display: flex;
+    gap: 12px;
+}
+
+.search-box {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.search-box input[type="text"] {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    flex-grow: 1;
+}
+
+.search-btn, .reset-btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.search-btn {
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+}
+
+.search-btn:hover {
+    background-color: #357ABD;
+}
+
+.reset-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1;
+}
+
+.reset-btn:hover {
+    background-color: #e0e0e0;
+}
+
+select {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+select:hover {
+    border-color: #888;
+}
+
+/* -----------------------------
+랭킹 섹션 (차트 + 목록)
+------------------------------ */
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.ranking-section {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    flex-wrap: wrap;
+}
+
+.ranking-chart-container {
+    width: 100%;
+    max-width: 800px;
+    height: 350px;  
+    margin: auto;
+}
+#rankingChart {
+    width: 100%;
+    height: 100%;
+}
+
+
+.ranking-chart-container h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.ranking-list-container {
+    flex: 1;
+}
+
+.ranking-list-container h3 {
+    font-size: 1.3rem;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.ranking-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 15px;
+}
+
+.ranking-item:last-child {
+    border-bottom: none;
+}
+
+.rank-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4A90E2;
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.rank-info {
+    flex-grow: 1;
+    margin-left: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.rank-title {
+    font-weight: 600;
+}
+
+.rank-rating {
+    font-weight: bold;
+    color: #D0021B;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+/* -----------------------------
+드라마 카드 그리드
+------------------------------ */
+.drama-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.drama-card {
+    background-color: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.drama-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+/* -----------------------------
+썸네일
+------------------------------ */
+.thumbnail img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+/* -----------------------------
+드라마 정보
+------------------------------ */
+.drama-info {
+    padding: 15px 18px;
+}
+
+.drama-info h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+    color: #222;
+}
+
+.drama-info .meta {
+    font-size: 0.9em;
+    color: #999;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.drama-info .rating-info,
+.drama-info .news-info {
+    font-size: 0.9em;
+    color: #555;
+    margin: 3px 0;
+    font-weight: 500;
+}
+
+.genres {
+    margin-top: 10px;
+}
+
+.genre-tag {
+    display: inline-block;
+    background-color: #E0F2F7;
+    color: #007bff;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* -----------------------------
+모바일 반응형
+------------------------------ */
+@media (max-width: 800px) {
+    .ranking-section {
+        flex-direction: column;
+    }
+    .ranking-chart-container {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 600px) {
+    header {
+        padding: 15px;
+    }
+    .filter-form {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .filters, .search-box {
+        width: 100%;
+    }
+}
