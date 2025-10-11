@@ -45,7 +45,7 @@
 
 > 드라마 회차별 시청률 관련 크롤링/Frontend/시각화 담당
 >
-> [주요 기능 설명](/docs/dongyi97/github.md)  
+> [주요 기능 설명](/docs/dongyi97/code.md)  
 > [Git History 보기](/docs/dongyi97/github.md)
 
 - 드라마 회차별 시청률 크롤러 개발
@@ -56,7 +56,7 @@
 
 > 드라마 정보(2023~2024 종영작) 관련 크롤링/Frontend/시각화 담당
 >
-> [주요 기능 설명](/docs/nasihyeon/github.md)  
+> [주요 기능 설명](/docs/nasihyeon/code.md)  
 > [Git History 보기](/docs/nasihyeon/github.md)
 
 - 2023 ~ 2024 드라마 목록 크롤러 개발
@@ -67,7 +67,7 @@
 
 > 드라마 장르 정보 크롤링
 >
-> [주요 기능 설명](/docs/jihwan20/github.md)  
+> [주요 기능 설명](/docs/jihwan20/code.md)  
 > [Git History 보기](/docs/jihwan20/github.md)
 
 - 드라마 장르 정보 크롤러 개발
@@ -77,7 +77,7 @@
 
 > 드라마가 언급된 뉴스 정보 크롤링
 >
-> [주요 기능 설명 - 비동기 처리를 활용하여 뉴스 크롤링 속도 개선](/docs/seon99il/github.md)  
+> [주요 기능 설명 - 비동기 처리를 활용하여 뉴스 크롤링 속도 개선](/docs/seon99il/code.md)  
 > [Git History 보기](/docs/seon99il/github.md)
 
 - 드라마 관련 뉴스 정보 크롤러 개발, 회차별 매핑 기능 개발
