@@ -6,6 +6,13 @@
 > 이를 시각화하여 제공하는 토이 프로젝트입니다. 사용자는 이 프로젝트를 통해 드라마 관련 트렌드를 직관적으로 파악하고,    
 > 드라마 회차별 시계열 데이터를 기반으로 한 깊이 있는 인사이트를 얻을 수 있습니다.
 
+### 💻 작업 화면
+
+![index_page](./docs/images/index_page.png)
+![dramas_page1](./docs/images/dramas_page1.png)
+![drama_detail_page1](docs/images/drama_detail_page1.png)
+![drama_detail_page2](docs/images/drama_detail_page2.png)
+
 ### 프로젝트 특징
 
 - **시청률, 뉴스 연관관계 분석**: 드라마의 시청률과 뉴스 기사 수 간의 상관관계를 시각화하여 드라마의 인기 요인을 분석합니다.
@@ -20,23 +27,72 @@
 - **장르 정보**: 드라마 장르별 분류 및 통계
 - **뉴스 기사**: 드라마 관련 뉴스 기사 수, 기사 제목, 링크, 언급된 회차 등
 
+### 주요 목표
+
+- **데이터 기반 순위 산정**: 흩어져 있는 드라마 관련 데이터를 종합하여 객관적인 인기 순위를 제공합니다.
+- **시각화를 통한 직관적 분석**: 복잡한 데이터를 차트와 그래프로 시각화하여 트렌드 변화를 쉽게 이해할 수 있도록 돕습니다.
+- **인사이트 도출**: 드라마별 언급된 뉴스 목록과 회차별 시청률과 뉴스 기사 수 간의 상관관계를 시각화합니다.
+
 ## 🧑‍💻 팀원 소개 & Roles
 
 | <img src="https://avatars.githubusercontent.com/u/92349185?v=4" width="130" height="130"> | <img src="https://avatars.githubusercontent.com/u/233895105?v=4" width="130" height="130"> | <img src="https://avatars.githubusercontent.com/u/90670592?v=4" width="130" height="130"> | <img src="https://avatars.githubusercontent.com/u/63443366?v=4" width="130" height="130"> |
 |:-----------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|
 |                            [김동영](https://github.com/dongyi97)                             |                            [나시현](https://github.com/nasihyeon)                             |                            [배지환](https://github.com/jihwan20)                             |                            [정성길](https://github.com/seon99il)                             |
-|                     [드라마 회차 시청률(크롤링/웹/시각화)](/docs/dongyi97/github.md)                     |                       [드라마 정보(크롤링/웹/시각화)](/docs/nasihyeon/github.md)                       |                       [드라마 장르(크롤링/웹/시각화)](/docs/jihwan20/github.md)                       |                     [관련 기사 크롤링(크롤링/웹/시각화)](/docs/seon99il/github.md)                      |
-|                      [feat: 드라마 회차 시청률 크롤링](/docs/dongyi97/code.md)                       |                       [feat: 드라마 목록 크롤링](/docs/nasihyeon/github.md)                        |                      [feat: 드라마 장르 정보 크롤링](/docs/jihwan20/github.md)                      |                       [feat: 드라마 관련 기사 크롤링](/docs/seon99il/code.md)                       |
+
+### 📑 주요 담당 업무
+
+#### **김동영**
+
+> 드라마 회차별 시청률 관련 크롤링/Frontend/시각화 담당
+>
+> [주요 기능 설명](/docs/dongyi97/github.md)  
+> [Git History 보기](/docs/dongyi97/github.md)
+
+- 드라마 회차별 시청률 크롤러 개발
+- 드라마 회차별 시청률 데이터 시각화
+- 드라마 회차별 상세 페이지 Front 개발
+
+#### **나시현**
+
+> 드라마 정보(2023~2024 종영작) 관련 크롤링/Frontend/시각화 담당
+>
+> [주요 기능 설명](/docs/nasihyeon/github.md)  
+> [Git History 보기](/docs/nasihyeon/github.md)
+
+- 2023 ~ 2024 드라마 목록 크롤러 개발
+- 드라마 줄거리, 이미지 정보 크롤러 개발
+- 드라마 목록 페이지 Front 개발
+
+#### **배지환**
+
+> 드라마 장르 정보 크롤링
+>
+> [주요 기능 설명](/docs/jihwan20/github.md)  
+> [Git History 보기](/docs/jihwan20/github.md)
+
+- 드라마 장르 정보 크롤러 개발
+- 장르별 드라마 인기도 조회를 위한 DB 모델링
+
+#### **정성길**
+
+> 드라마가 언급된 뉴스 정보 크롤링
+>
+> [주요 기능 설명 - 비동기 처리를 활용하여 뉴스 크롤링 속도 개선](/docs/seon99il/github.md)  
+> [Git History 보기](/docs/seon99il/github.md)
+
+- 드라마 관련 뉴스 정보 크롤러 개발, 회차별 매핑 기능 개발
+- 드라마가 언급된 뉴스 목록 조회 기능 개발
+- 인덱스 페이지 Front 개발 (초기 데이터 셋업 기능, 시청률, 가장 많이 언급된 드라마)
 
 ## 🛠️ 기술 스택
 
 ### 크롤링
 
 <div>
-<img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/beautifulsoup-43B02A?style=for-the-badge&logoColor=white" alt=""/>
-<img src="https://img.shields.io/badge/httpx-3776AB?style=for-the-badge&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/beautifulsoup-43B02A?style=for-the-badge&logoColor=white" alt=""/>
+    <img src="https://img.shields.io/badge/httpx-3776AB?style=for-the-badge&logoColor=white" alt=""/>
 </div>
 
 ### 백엔드
@@ -63,13 +119,6 @@
     <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&&logo=githubactions&logoColor=white" alt=""/>
     <img src="https://img.shields.io/badge/uv-DE5FE9?style=for-the-badge&&logo=uv&logoColor=white" alt=""/>
 </div>
-
-### 주요 목표
-- **데이터 기반 순위 산정**: 흩어져 있는 드라마 관련 데이터를 종합하여 객관적인 인기 순위를 제공합니다.
-- **시각화를 통한 직관적 분석**: 복잡한 데이터를 차트와 그래프로 시각화하여 트렌드 변화를 쉽게 이해할 수 있도록 돕습니다.
-- **인사이트 도출**: 드라마의 성공 요인이나 화제성 변화를 분석할 수 있는 기반 데이터를 구축합니다.
-
----
 
 ---
 
@@ -114,8 +163,6 @@ graph TD;
 | 드라마 목록 페이지 |  드라마 종합 랭킹 (시청률, 언급 뉴스 수)  |     -      |    -     |   /dramas   |
 | 드라마 상세 페이지 |       회차별 뉴스 언급량 추이        |  회차 및 방영일  | 언급한 뉴스 수 | /dramas/:id |
 | 드라마 상세 페이지 |         회차별 시청률 변화         |  회차 및 방영일  | 시청률 (%)  | /dramas/:id |
-
-![index_page](./docs/images/index_page.png)
 
 ---
 
@@ -171,17 +218,20 @@ $ python src/manage.py migrate
 
 ### 4. 초기 데이터 설정 (크롤링)
 
-아래 명령어를 실행하여 드라마, 회차, 뉴스 데이터를 한 번에 수집하고 데이터베이스를 설정합니다. 이 과정은 네트워크 상태에 따라 몇 분 정도 소요될 수 있습니다.
+> _아래 명령어를 실행하여 드라마, 회차, 뉴스 데이터를 한 번에 수집하고 데이터베이스를 설정합니다.  
+> 이 과정은 네트워크 상태에 따라 몇 분 정도 소요될 수 있습니다._
 
+_초기 데이터를 설정하지 않으면 http://127.0.0.1:8000/ 접속 시 자동으로 초기 데이터 설정이 시도됩니다._
 ```bash
 $ python src/manage.py setup_data
 ```
 
 `setup_data` 명령어는 다음 세 가지 명령을 순차적으로 실행합니다.
 
-1. `crawl_dramas`: 드라마 기본 정보 수집
-2. `crawler_episodes`: 회차별 상세 정보 수집
-3. `crawl_news`: 드라마 관련 뉴스 기사 수집
+1. 드라마 기본 정보 크롤링 - (`crawl_dramas`, `crawl_dramas_desc`, `crawl_dramas_img`)
+2. 드라마 회차 정보 크롤링 - (`crawler_episodes`)
+3. 드라마 장르 정보 크롤링 - (`crawl_genre`)
+4. 드라마 관련 뉴스 정보 크롤링 - (`crawl_news`)
 
 ### 5. 개발 서버 실행
 
@@ -191,4 +241,4 @@ $ python src/manage.py setup_data
 $ python src/manage.py runserver
 ```
 
-서버가 실행되면 웹 브라우저에서 `http://127.0.0.1:8000/` 으로 접속하여 결과를 확인할 수 있습니다.
+서버가 실행되면 웹 브라우저에서 `http://127.0.0.1:8000/` 으로 접속하여 결과를 확인할 수 있습니다
