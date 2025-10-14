@@ -68,7 +68,7 @@ class TestInsertNewsLinkedToDrama(TransactionTestCase):
 
     def test_check_inserting_news_to_correct_drama(self):
         # given
-        url = reverse("set-up-news")
+        url = reverse("setup-news")
         dramas_with_episodes = Drama.objects.annotate(  # 에피소드가 있는 드라마 정보만 조회
             has_episode=Exists(
                 EpisodeInfo.objects.filter(drama_id=OuterRef('pk'))

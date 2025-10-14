@@ -1,10 +1,10 @@
-from typing import List
-from urllib.parse import urlparse, parse_qs, urlencode
+from typing import List, Tuple
+from urllib.parse import urlparse, parse_qs
 
-import httpx
-
+from common.base_async_crawler import BaseCrawler
 from common.bs4_util import get_value_or_none, parse_html_to_soup
 from common.date_util import parse_search_to_date
+from common.next_url_setter import NextUrlSetter
 
 
 class NaverNewsItem:
@@ -27,27 +27,27 @@ class NaverNewsItem:
         }
 
 
-class NaverNewsCrawler:
-    """Naver News 비동기 크롤러"""
-    BASE_URL = "https://s.search.naver.com/p/newssearch/3/api/tab/more"
-    _headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/118.0.5993.88 Safari/537.36"
-        ),
-        "Referer": "https://search.naver.com/search.naver",
-        "Accept": "application/json, text/javascript, */*; q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-    }
+class NaverNextUrlSetter(NextUrlSetter):
+    def get_next_url(self, current_url: str, current_params: dict,
+        data: dict) -> Tuple[str | None, dict]:
+        next_url_str = data.get('url')
+        if next_url_str:
+            parsed = urlparse(next_url_str)
+            next_params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+            return next_url_str, next_params
+        return None, current_params
 
-    def __init__(self, query: str, ds: str, de: str,
-                 headers: dict = None, *, start: str = "0"):
+
+class NaverNewsCrawler(BaseCrawler[NaverNewsItem]):
+    BASE_URL = "https://s.search.naver.com/p/newssearch/3/api/tab/more"
+
+    def __init__(self, query: str, ds: str, de: str, headers: dict = None, *,
+        start: str = "0"):
         self.query = query
         self.ds = ds
         self.de = de
-        self._headers = headers or self._headers
-        self.params = {
+
+        params = {
             "cluster_rank": "0",
             "ds": ds,
             "de": de,
@@ -57,48 +57,24 @@ class NaverNewsCrawler:
             "ssc": "tab.news.all",
             "sort": "0",
             "sm": "tab_smr",
-            "start": "0",
+            "start": start,
             "nso": f"so:r,p:from{ds.replace('.', '')}to{de.replace('.', '')},a:all",
         }
-        self.next_url = f"{self.BASE_URL}?{urlencode(self.params)}"
-        self.response_cls = NaverNewsItem
 
-    async def all(self) -> List[NaverNewsItem]:
-        all_news: List[NaverNewsItem] = []
-        async for news_page in self:
-            all_news.extend(news_page)
-        return all_news
+        super().__init__(base_url=self.BASE_URL,
+                         next_url_setter=NaverNextUrlSetter(),
+                         headers=headers,
+                         params=params)
 
-    def has_next_page(self) -> bool:
-        return self.next_url is not None
-
-    def __aiter__(self):
-        return self
-
-    async def __anext__(self) -> List[NaverNewsItem]:
-        if not self.has_next_page():
-            raise StopAsyncIteration("No more pages to fetch.")
-        return await self._fetch_next()
-
-    async def _fetch_next(self) -> List[NaverNewsItem]:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(self.next_url, params=self.params, headers=self._headers)
-        
-        response.raise_for_status()
-        data = response.json()
-
+    def _parse_data(self, data) -> List[NaverNewsItem]:
         next_url_str = data.get('url')
         if next_url_str:
             parsed = urlparse(next_url_str)
             self.next_url = next_url_str
             self.params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
-
         else:
             self.next_url = None
 
-        return self._parse_news(data)
-
-    def _parse_news(self, data) -> List[NaverNewsItem]:
         htmls = [item['html'] for item in data.get('collection', [])]
         if not htmls:
             return []
@@ -125,8 +101,7 @@ class NaverNewsCrawler:
                 "div.sds-comps-profile-info-title span.sds-comps-text a span.sds-comps-text"
             )
 
-
-            item = self.response_cls(
+            news = NaverNewsItem(
                 title=get_value_or_none(title_tag),
                 content=get_value_or_none(body_tag),
                 marks=[get_value_or_none(m) for m in mark_tags],
@@ -134,6 +109,6 @@ class NaverNewsCrawler:
                 date=parse_search_to_date(get_value_or_none(date_tag)),
                 press=get_value_or_none(press_tag)
             )
-            news_list.append(item)
+            news_list.append(news)
 
         return news_list

@@ -74,7 +74,7 @@ class TestAsync(TransactionTestCase):
 
     def test_async_crawl_api(self):
         # given
-        url = reverse("set-up-news")
+        url = reverse("setup-news")
         dramas_with_episodes = Drama.objects.annotate(
             has_episode=Exists(
                 EpisodeInfo.objects.filter(drama_id=OuterRef('pk'))
